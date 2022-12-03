@@ -1,10 +1,13 @@
 // quizzProgramme.cpp : Defines the entry point for the application.
-//
+// Using the following tutorials:
+// https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp
+// http://www.winprog.org/tutorial
 
 #include "framework.h"
 #include "quizzProgramme.h"
 
 #define MAX_LOADSTRING 100
+//TEXT filePath = TEXT("C:\Users\sebal\source\repos\quizzProgramme\quizzProgramme\pictures\naruto_logo.png");
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -146,7 +149,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
+            RECT rc;
+            TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
+            // Here your application is laid out.
+            // in the top left corner.
+            TextOut(hdc,
+                5, 5,
+                greeting, _tcslen(greeting));
+            FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
+            //Image* image = Image::FromFile(filePath);
+            //Status status = graphic.DrawImage(image, 10, 20);
             EndPaint(hWnd, &ps);
         }
         break;
