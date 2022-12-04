@@ -1,6 +1,7 @@
 // quizzProgramme.cpp : Defines the entry point for the application.
 // Using the following tutorials:
 // https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp
+// https://learn.microsoft.com/en-us/windows/win32/menurc/resources
 // http://www.winprog.org/tutorial
 
 #include "framework.h"
@@ -33,7 +34,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_QUIZZPROGRAMME, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+    ATOM res = MyRegisterClass(hInstance);
+
+    if (!res)
+    {
+        MessageBox(NULL, L"Window Registration Failed!", L"Error!",
+            MB_ICONEXCLAMATION | MB_OK);
+        return 0;
+    }
 
     // Perform application initialization:
     if (!InitInstance (hInstance, nCmdShow))
@@ -46,7 +54,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (GetMessage(&msg, nullptr, 0, 0)>0)
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
@@ -78,7 +86,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_QUIZZPROGRAMME));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+15);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_QUIZZPROGRAMME);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -128,6 +136,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    // Handling left mouse clicks
+    case WM_LBUTTONDOWN:
+        {
+            char szFileNameTmp[MAX_PATH]; 
+            LPWSTR szFileName = LPTSTR(szFileNameTmp); // hopefully it has at least the size [MAX_PATH]
+            HINSTANCE hInstance = GetModuleHandle(NULL);
+
+            GetModuleFileName(hInstance, szFileName, MAX_PATH);
+            MessageBox(hWnd, szFileName, L"This program is:", MB_OK | MB_ICONINFORMATION);
+        }
+    // Handling menu option actions
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -145,6 +164,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    // Handling window display
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
