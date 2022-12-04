@@ -137,6 +137,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
+    HMENU hmenu = GetMenu(hWnd);
+    MENUITEMINFO menuItemTraining = { 0 };
+    MENUITEMINFO menuItemExam = { 0 };
+
     switch (message)
     {
     // Handling left mouse clicks
@@ -162,6 +167,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_RULES:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
                 break;
+            case IDM_MODE_TRAINING:
+            case IDM_MODE_EXAM:
+                menuItemTraining.cbSize = sizeof(MENUITEMINFO);
+                menuItemTraining.fMask = MIIM_STATE;
+                menuItemExam.cbSize = sizeof(MENUITEMINFO);
+                menuItemExam.fMask = MIIM_STATE;
+                GetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+                GetMenuItemInfo(hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
+                if (menuItemTraining.fState == MFS_CHECKED) {
+                    // Checked, uncheck it
+                    menuItemTraining.fState = MFS_UNCHECKED;
+                    menuItemExam.fState = MFS_CHECKED;
+                }
+                else {
+                    // Unchecked, check it
+                    menuItemTraining.fState = MFS_CHECKED;
+                    menuItemExam.fState = MFS_UNCHECKED;
+                }
+                SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+                SetMenuItemInfo(hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
+                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -170,10 +196,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-    case WM_CREATE:
+    case WM_CREATE: // Called at start
+        // Initialize "rules" menu
         ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
         if (ibiki == NULL)
             MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+        // Initialize "Mode" menu
+        menuItemTraining.cbSize = sizeof(MENUITEMINFO);
+        menuItemTraining.fMask = MIIM_STATE;
+        menuItemTraining.fState = MFS_CHECKED;
+        SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
         break;
     // Handling window display
     case WM_PAINT:

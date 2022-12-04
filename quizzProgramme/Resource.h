@@ -11,13 +11,15 @@
 #define IDM_ABOUT				105
 #define IDM_RULES				106
 #define IDM_EXIT				107
-#define IDI_QUIZZPROGRAMME			108
-#define IDI_SMALL				109
-#define IDC_QUIZZPROGRAMME			110
+#define IDM_MODE_TRAINING       108
+#define IDM_MODE_EXAM           109
+#define IDI_QUIZZPROGRAMME		110
+#define IDI_SMALL				111
+#define IDC_QUIZZPROGRAMME		112
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
-#define IDB_IBIKI               111
+#define IDB_IBIKI               113
 #endif
 // Next default values for new objects
 //
