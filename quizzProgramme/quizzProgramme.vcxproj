@@ -145,7 +145,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="quizzProgramme.cpp" />
+    <ClCompile Include="src\\quizzProgramme.cpp" />
+    <ClCompile Include="src\\data_storing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="quizzProgramme.rc" />

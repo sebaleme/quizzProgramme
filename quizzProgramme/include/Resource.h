@@ -4,22 +4,24 @@
 
 #define IDS_APP_TITLE			103
 
-#define IDR_MAINFRAME			128
+#define IDR_MAINFRAME				128
 #define IDD_QUIZZPROGRAMME_DIALOG	102
-#define IDD_ABOUTBOX			103
-#define IDD_RULESBOX			104
-#define IDM_ABOUT				105
-#define IDM_RULES				106
-#define IDM_EXIT				107
-#define IDM_MODE_TRAINING       108
-#define IDM_MODE_EXAM           109
-#define IDI_QUIZZPROGRAMME		110
-#define IDI_SMALL				111
-#define IDC_QUIZZPROGRAMME		112
+#define IDD_ABOUTBOX				103
+#define IDD_RULESBOX				104
+#define IDM_ABOUT					105
+#define IDM_RULES					106
+#define IDM_EXIT					107
+#define IDM_QUIZZTYPE_NARUTO		108
+#define IDM_QUIZZTYPE_GOT			109
+#define IDM_MODE_TRAINING			110
+#define IDM_MODE_EXAM				111
+#define IDI_QUIZZPROGRAMME			112
+#define IDI_SMALL					113
+#define IDC_QUIZZPROGRAMME			114
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
-#define IDB_IBIKI               113
+#define IDB_IBIKI					115
 #endif
 // Next default values for new objects
 //

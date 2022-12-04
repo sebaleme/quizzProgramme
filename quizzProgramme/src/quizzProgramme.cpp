@@ -4,9 +4,11 @@
 // https://learn.microsoft.com/en-us/windows/win32/menurc/resources
 // http://www.winprog.org/tutorial
 
-#include "framework.h"
-#include "quizzProgramme.h"
-#include "include\\data_acquisition.hpp"
+#include "..\\include\\framework.h"
+#include "..\\include\\quizzProgramme.h"
+#include "..\\include\\data_acquisition.hpp"
+#include "..\\include\\test_mode.hpp"
+#include "..\\include\\training_mode.hpp"
 
 #define MAX_LOADSTRING 100
 
@@ -16,6 +18,8 @@ WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HBITMAP ibiki = NULL;
 HDC hdcMem;
+themes s_selection;
+
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -23,6 +27,54 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
+
+void init(HMENU& f_hmenu, themes f_theme)
+{
+    s_selection = f_theme;
+    init_input_data(s_selection);
+    MENUITEMINFO menuItemNaruto = { 0 };
+    MENUITEMINFO menuItemGot = { 0 };
+    menuItemNaruto.cbSize = sizeof(MENUITEMINFO);
+    menuItemNaruto.fMask = MIIM_STATE;
+    menuItemGot.cbSize = sizeof(MENUITEMINFO);
+    menuItemGot.fMask = MIIM_STATE;
+    if (f_theme == themes::Naruto)
+    {
+        menuItemGot.fState = MFS_UNCHECKED;
+        menuItemNaruto.fState = MFS_CHECKED;
+    }
+    else if (f_theme == themes::GoT)
+    {
+        menuItemGot.fState = MFS_CHECKED;
+        menuItemNaruto.fState = MFS_UNCHECKED;
+    }
+
+    SetMenuItemInfo(f_hmenu, IDM_QUIZZTYPE_NARUTO, FALSE, &menuItemNaruto);
+    SetMenuItemInfo(f_hmenu, IDM_QUIZZTYPE_GOT, FALSE, &menuItemGot);
+}
+
+void toggleMode(HMENU& f_hmenu, MENUITEMINFO& f_menuItemTraining)
+{
+    MENUITEMINFO menuItemExam = { 0 };
+    f_menuItemTraining.cbSize = sizeof(MENUITEMINFO);
+    f_menuItemTraining.fMask = MIIM_STATE;
+    menuItemExam.cbSize = sizeof(MENUITEMINFO);
+    menuItemExam.fMask = MIIM_STATE;
+    GetMenuItemInfo(f_hmenu, IDM_MODE_TRAINING, FALSE, &f_menuItemTraining);
+    GetMenuItemInfo(f_hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
+    if (f_menuItemTraining.fState == MFS_CHECKED) {
+        // Checked, uncheck it
+        f_menuItemTraining.fState = MFS_UNCHECKED;
+        menuItemExam.fState = MFS_CHECKED;
+    }
+    else {
+        // Unchecked, check it
+        f_menuItemTraining.fState = MFS_CHECKED;
+        menuItemExam.fState = MFS_UNCHECKED;
+    }
+    SetMenuItemInfo(f_hmenu, IDM_MODE_TRAINING, FALSE, &f_menuItemTraining);
+    SetMenuItemInfo(f_hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -48,8 +100,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Initialize random function
     srand(static_cast<uint32_t>(time(NULL)));
-    // Read input data
-    init_input_data();
 
     // Perform application initialization:
     if (!InitInstance (hInstance, nCmdShow))
@@ -142,10 +192,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
     HMENU hmenu = GetMenu(hWnd);
-    MENUITEMINFO menuItemTraining = { 0 };
-    MENUITEMINFO menuItemExam = { 0 };
+    MENUITEMINFO menuItemTraining = { 0 }; // Needed outside toggleMode() because used in WM_CREATE
 
     switch (message)
     {
@@ -172,26 +220,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_RULES:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
                 break;
+            case IDM_QUIZZTYPE_NARUTO:
+                // Read input data
+                init(hmenu, themes::Naruto);
+                break;
+            case IDM_QUIZZTYPE_GOT:
+                // Read input data
+                init(hmenu, themes::GoT);
+                break;
             case IDM_MODE_TRAINING:
             case IDM_MODE_EXAM:
-                menuItemTraining.cbSize = sizeof(MENUITEMINFO);
-                menuItemTraining.fMask = MIIM_STATE;
-                menuItemExam.cbSize = sizeof(MENUITEMINFO);
-                menuItemExam.fMask = MIIM_STATE;
-                GetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
-                GetMenuItemInfo(hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
-                if (menuItemTraining.fState == MFS_CHECKED) {
-                    // Checked, uncheck it
-                    menuItemTraining.fState = MFS_UNCHECKED;
-                    menuItemExam.fState = MFS_CHECKED;
-                }
-                else {
-                    // Unchecked, check it
-                    menuItemTraining.fState = MFS_CHECKED;
-                    menuItemExam.fState = MFS_UNCHECKED;
-                }
-                SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
-                SetMenuItemInfo(hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
+                toggleMode(hmenu, menuItemTraining);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
@@ -229,8 +268,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 5, 25,
                 selectTheme, _tcslen(selectTheme));
             FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
-            //Image* image = Image::FromFile(filePath);
-            //Status status = graphic.DrawImage(image, 10, 20);
             EndPaint(hWnd, &ps);
         }
         break;

@@ -14,13 +14,90 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <utility>
 #include <vector>
+#include "..\\include\\quizz_interfaces.hpp"
+
 
 using namespace std;
-string INPUT_FILE_PATH = "database\\input.csv";
 
 std::vector<pair<string, int>> s_people_with_gt;
-std::vector<string>  s_house;
+std::vector<string> s_house;
+
+array<string, 2> cout_1{ "house","village" };
+array<string, 2> cout_2{ "GoT","Naruto" };
+
+// Helper function, overloading operator
+ostream& operator<<(ostream& f_out, const quizz_mode f_input)
+{
+    const char* s = 0;
+
+    switch (f_input)
+    {
+    case quizz_mode::QUIZZ_RULES:
+    {
+        s = "Quizz Rules";
+        break;
+    }
+    case quizz_mode::BEST_SCORES:
+    {
+        s = "Best Scores";
+        break;
+    }
+    case quizz_mode::TRAINING:
+    {
+        s = "Training";
+        break;
+    }
+    case quizz_mode::TEST:
+    {
+        s = "Test";
+        break;
+    }
+    case quizz_mode::EXIT:
+    {
+        s = "Exit";
+        break;
+    }
+    default:
+    {
+        s = "INVALID";
+    }
+    }
+    return f_out << s;
+};
+
+ostream& operator<<(ostream& f_out, const themes f_input)
+{
+    const char* s = 0;
+
+    switch (f_input)
+    {
+    case themes::GoT:
+    {
+        s = "Game Of Thrones";
+        break;
+    }
+    case themes::Naruto:
+    {
+        s = "Naruto";
+        break;
+    }
+    default:
+    {
+        s = "INVALID";
+    }
+    }
+    return f_out << s;
+};
+
+// interface to access data
+string INPUT_PATH_GOT_1 = "C:\\Users\\lsm1so\\Documents\\workspace\\windows_tests\\facebook\\database\\got_name_house.csv";
+string INPUT_PATH_NARUTO_1 = "C:\\Users\\lsm1so\\Documents\\workspace\\windows_tests\\facebook\\database\\naruto_name_village.csv";
+map<themes, string> data_in_selection{
+    {themes::GoT,INPUT_PATH_GOT_1},
+    {themes::Naruto,INPUT_PATH_NARUTO_1},
+};
 
 /// @brief print GT information (for debugging purpose)
 void print_GT()
@@ -44,9 +121,10 @@ void print_GT()
 
 /// @brief read CSV and store data into vectors
 ///        2 interfaces are provided, a vector of houses and a vector of pair containing the names and responses 
-void init_input_data()
+void init_input_data(themes f_selection)
 {
-    ifstream fin(INPUT_FILE_PATH.c_str());
+    ifstream fin(data_in_selection[f_selection].c_str());
+
     if (!fin.good())
     {
         cout << "Could not open the input file" << endl;
