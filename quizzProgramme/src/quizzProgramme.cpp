@@ -1,8 +1,4 @@
 // quizzProgramme.cpp : Defines the entry point for the application.
-// Using the following tutorials:
-// https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp
-// https://learn.microsoft.com/en-us/windows/win32/menurc/resources
-// http://www.winprog.org/tutorial
 
 #include "..\\include\\framework.h"
 #include "..\\include\\quizzProgramme.h"
@@ -19,6 +15,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HBITMAP ibiki = NULL;
 HDC hdcMem;
 themes s_selection;
+std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
 
 
 // Forward declarations of functions included in this code module:
@@ -30,8 +27,8 @@ INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
 
 void init(HMENU& f_hmenu, themes f_theme)
 {
-    s_selection = f_theme;
-    init_input_data(s_selection);
+    s_pCurrentSession = make_unique<CCurrentSession>(f_theme);
+    init_input_data(f_theme);
     MENUITEMINFO menuItemNaruto = { 0 };
     MENUITEMINFO menuItemGot = { 0 };
     menuItemNaruto.cbSize = sizeof(MENUITEMINFO);
@@ -250,6 +247,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         menuItemTraining.fMask = MIIM_STATE;
         menuItemTraining.fState = MFS_CHECKED;
         SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+        // Create Input text box
+        HFONT hfDefault;
+        HWND hEdit;
+        hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
+            WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+            5, 45, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
+        if (hEdit == NULL)
+            MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+
+        hfDefault = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+        SendMessage(hEdit, WM_SETFONT, (WPARAM)hfDefault, MAKELPARAM(FALSE, 0));
+        // Create Button box
+        HFONT hfDefault2;
+        HWND hEdit2;
+        hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"",
+            WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+            5, 65, 85, 20, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
+        if (hEdit2 == NULL)
+            MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+
+        hfDefault2 = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+        SendMessage(hEdit2, WM_SETFONT, (WPARAM)hfDefault2, MAKELPARAM(FALSE, 0));
         break;
     // Handling window display
     case WM_PAINT:

@@ -1,13 +1,17 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by quizzProgramme.rc
+// See https://learn.microsoft.com/en-us/cpp/mfc/tn020-id-naming-and-numbering-conventions
 
+// string ID
 #define IDS_APP_TITLE			103
-
+// resource ID, primarily used for menus, accelerators, and ribbons
 #define IDR_MAINFRAME				128
+// Dialog ID
 #define IDD_QUIZZPROGRAMME_DIALOG	102
 #define IDD_ABOUTBOX				103
 #define IDD_RULESBOX				104
+// Message ID
 #define IDM_ABOUT					105
 #define IDM_RULES					106
 #define IDM_EXIT					107
@@ -15,13 +19,18 @@
 #define IDM_QUIZZTYPE_GOT			109
 #define IDM_MODE_TRAINING			110
 #define IDM_MODE_EXAM				111
+// Icon ID
 #define IDI_QUIZZPROGRAMME			112
 #define IDI_SMALL					113
+// Control ID
 #define IDC_QUIZZPROGRAMME			114
+#define IDC_MAIN_EDIT				115
+#define IDC_MAIN_BUTTON             116
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
-#define IDB_IBIKI					115
+// Bitmap ID
+#define IDB_IBIKI					117
 #endif
 // Next default values for new objects
 //

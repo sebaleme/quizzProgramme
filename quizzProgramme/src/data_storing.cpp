@@ -23,8 +23,9 @@ CCurrentSession::CCurrentSession(themes f_theme) : m_theme{f_theme}
 {
     while(m_record.name.length() == 0)
     {
-        cout << "Please provide your name" << endl;
-        cin >> m_record.name;
+ //       cout << "Please provide your name" << endl;
+       // cin >> m_record.name;
+        m_record.name = "user";
     }
     m_record.result = 0;
     getHistory();
