@@ -6,20 +6,23 @@
 
 #include "framework.h"
 #include "quizzProgramme.h"
+#include <iostream>
 
 #define MAX_LOADSTRING 100
-//TEXT filePath = TEXT("C:\Users\sebal\source\repos\quizzProgramme\quizzProgramme\pictures\naruto_logo.png");
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+HBITMAP ibiki = NULL;
+HDC hdcMem;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -156,6 +159,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
+            case IDM_RULES:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
+                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -164,6 +170,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_CREATE:
+        ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
+        if (ibiki == NULL)
+            MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+        break;
     // Handling window display
     case WM_PAINT:
         {
@@ -171,11 +182,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hWnd, &ps);
             RECT rc;
             TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
+            TCHAR selectTheme[] = _T("Please select a theme");
             // Here your application is laid out.
             // in the top left corner.
             TextOut(hdc,
                 5, 5,
                 greeting, _tcslen(greeting));
+            TextOut(hdc,
+                5, 25,
+                selectTheme, _tcslen(selectTheme));
             FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
             //Image* image = Image::FromFile(filePath);
             //Status status = graphic.DrawImage(image, 10, 20);
@@ -192,7 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 // Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK About(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
@@ -203,9 +218,48 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
-            EndDialog(hDlg, LOWORD(wParam));
+            EndDialog(hWnd, LOWORD(wParam));
             return (INT_PTR)TRUE;
         }
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
+
+// Message handler for about box.
+INT_PTR CALLBACK Rules(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hWnd, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    case WM_PAINT:
+        BITMAP bm;
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        HDC hdcMem = CreateCompatibleDC(hdc);
+        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, ibiki));
+
+        GetObject(ibiki, sizeof(bm), &bm);
+        std::cout << "Width: " << bm.bmWidth << ", Height: " << bm.bmHeight << std::endl;
+
+        BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+        SelectObject(hdcMem, hbmOld);
+        DeleteDC(hdcMem);
+
+        EndPaint(hWnd, &ps);
         break;
     }
     return (INT_PTR)FALSE;
