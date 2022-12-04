@@ -6,7 +6,7 @@
 
 #include "framework.h"
 #include "quizzProgramme.h"
-#include <iostream>
+#include "include\\data_acquisition.hpp"
 
 #define MAX_LOADSTRING 100
 
@@ -45,6 +45,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
+
+    // Initialize random function
+    srand(static_cast<uint32_t>(time(NULL)));
+    // Read input data
+    init_input_data();
 
     // Perform application initialization:
     if (!InitInstance (hInstance, nCmdShow))
@@ -284,7 +289,6 @@ INT_PTR CALLBACK Rules(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, ibiki));
 
         GetObject(ibiki, sizeof(bm), &bm);
-        std::cout << "Width: " << bm.bmWidth << ", Height: " << bm.bmHeight << std::endl;
 
         BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
 
