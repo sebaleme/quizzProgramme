@@ -27,7 +27,7 @@ INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
 
 void init(HMENU& f_hmenu, themes f_theme)
 {
-    s_pCurrentSession = make_unique<CCurrentSession>(f_theme);
+    s_pCurrentSession->setTheme(f_theme);
     init_input_data(f_theme);
     MENUITEMINFO menuItemNaruto = { 0 };
     MENUITEMINFO menuItemGot = { 0 };
@@ -238,6 +238,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_CREATE: // Called at start
+        s_pCurrentSession = make_unique<CCurrentSession>();
         // Initialize "rules" menu
         ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
         if (ibiki == NULL)
@@ -247,47 +248,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         menuItemTraining.fMask = MIIM_STATE;
         menuItemTraining.fState = MFS_CHECKED;
         SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
-        // Create Input text box
-        HFONT hfDefault;
-        HWND hEdit;
-        hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
-            WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
-            5, 45, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
-        if (hEdit == NULL)
-            MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
 
-        hfDefault = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-        SendMessage(hEdit, WM_SETFONT, (WPARAM)hfDefault, MAKELPARAM(FALSE, 0));
-        // Create Button box
-        HFONT hfDefault2;
-        HWND hEdit2;
-        hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"",
-            WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
-            5, 65, 85, 20, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
-        if (hEdit2 == NULL)
-            MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
-
-        hfDefault2 = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-        SendMessage(hEdit2, WM_SETFONT, (WPARAM)hfDefault2, MAKELPARAM(FALSE, 0));
         break;
     // Handling window display
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            RECT rc;
-            TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
-            TCHAR selectTheme[] = _T("Please select a theme");
-            // Here your application is laid out.
-            // in the top left corner.
-            TextOut(hdc,
-                5, 5,
-                greeting, _tcslen(greeting));
-            TextOut(hdc,
-                5, 25,
-                selectTheme, _tcslen(selectTheme));
-            FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
-            EndPaint(hWnd, &ps);
+            if (!s_pCurrentSession->m_gameStarted)
+            {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hWnd, &ps);
+                RECT rc;
+                TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
+                TCHAR selectTheme[] = _T("Please select a theme, a game type and enter your name");
+                // Here your application is laid out.
+                // in the top left corner.
+                TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
+                TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
+                // Initialize variables for controls
+                HFONT hfTextBox, hfButtonBox;
+                HWND hEditTextBox, hEditButtonBox;
+                // Create Input text box
+                hEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"User",
+                    WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+                    15, 80, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
+                if (hEditTextBox == NULL)
+                    MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+                hfTextBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+                SendMessage(hEditTextBox, WM_SETFONT, (WPARAM)hfTextBox, MAKELPARAM(FALSE, 0));
+                // Create Button box
+                hEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Start game",
+                    WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+                    105, 75, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
+                if (hEditButtonBox == NULL)
+                    MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+                hfButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+                SendMessage(hEditButtonBox, WM_SETFONT, (WPARAM)hfButtonBox, MAKELPARAM(FALSE, 0));
+
+                FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
+                EndPaint(hWnd, &ps);
+            }
+            else
+            {
+
+            }
         }
         break;
     case WM_DESTROY:

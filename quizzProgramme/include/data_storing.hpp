@@ -28,7 +28,7 @@ struct record
 class CCurrentSession
 {
 public:
-    CCurrentSession(themes f_theme);
+    CCurrentSession();
     void get_credencials();
     void set_duration(int f_duration);
     void updateRecords();
@@ -37,7 +37,10 @@ public:
     void incr_score();
     void store();
     void getHistory();
+    void setTheme(themes f_theme);
     themes getTheme();
+    // Dont want 3 methods to set/reset and read
+    bool m_gameStarted;
 
 private:
     themes m_theme;

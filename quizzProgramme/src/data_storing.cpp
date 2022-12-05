@@ -19,7 +19,7 @@ map<themes,string> data_out_selection{
     {themes::Naruto,OUTPUT_PATH_NARUTO_1},
 };
 
-CCurrentSession::CCurrentSession(themes f_theme) : m_theme{f_theme}
+CCurrentSession::CCurrentSession() : m_theme{themes::Invalid}
 {
     while(m_record.name.length() == 0)
     {
@@ -28,6 +28,7 @@ CCurrentSession::CCurrentSession(themes f_theme) : m_theme{f_theme}
         m_record.name = "user";
     }
     m_record.result = 0;
+    m_gameStarted = false;
     getHistory();
 };
 
@@ -83,6 +84,11 @@ themes CCurrentSession::getTheme()
     return m_theme;
 }
 
+void CCurrentSession::setTheme(themes f_theme)
+{
+    m_theme = f_theme;
+}
+
 void CCurrentSession::updateRecords()
 {
     m_records.push_back(m_record);
@@ -109,4 +115,3 @@ void CCurrentSession::displayScores()
         if(index++ > 10) break;
     }
 }
-
