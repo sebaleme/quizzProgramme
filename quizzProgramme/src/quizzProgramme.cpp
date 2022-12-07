@@ -17,6 +17,9 @@ HDC hdcMem;
 themes s_selection;
 std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
 
+// Initialize variables for controls
+HFONT hfTextBox, hfButtonBox;
+HWND hEditTextBox, hEditButtonBox;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -73,6 +76,8 @@ void toggleMode(HMENU& f_hmenu, MENUITEMINFO& f_menuItemTraining)
     SetMenuItemInfo(f_hmenu, IDM_MODE_EXAM, FALSE, &menuItemExam);
 }
 
+
+// Creating new instance of a window
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -194,110 +199,124 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-    // Handling left mouse clicks
-    case WM_LBUTTONDOWN:
-        {
-            char szFileNameTmp[MAX_PATH]; 
-            LPWSTR szFileName = LPTSTR(szFileNameTmp); // hopefully it has at least the size [MAX_PATH]
-            HINSTANCE hInstance = GetModuleHandle(NULL);
-
-            GetModuleFileName(hInstance, szFileName, MAX_PATH);
-            MessageBox(hWnd, szFileName, L"This program is:", MB_OK | MB_ICONINFORMATION);
-        }
-    // Handling menu option actions
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
+        // Handling left mouse clicks
+        case WM_LBUTTONDOWN:
             {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_RULES:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
-                break;
-            case IDM_QUIZZTYPE_NARUTO:
-                // Read input data
-                init(hmenu, themes::Naruto);
-                break;
-            case IDM_QUIZZTYPE_GOT:
-                // Read input data
-                init(hmenu, themes::GoT);
-                break;
-            case IDM_MODE_TRAINING:
-            case IDM_MODE_EXAM:
-                toggleMode(hmenu, menuItemTraining);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-    case WM_CREATE: // Called at start
-        s_pCurrentSession = make_unique<CCurrentSession>();
-        // Initialize "rules" menu
-        ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
-        if (ibiki == NULL)
-            MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
-        // Initialize "Mode" menu
-        menuItemTraining.cbSize = sizeof(MENUITEMINFO);
-        menuItemTraining.fMask = MIIM_STATE;
-        menuItemTraining.fState = MFS_CHECKED;
-        SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+                char szFileNameTmp[MAX_PATH]; 
+                LPWSTR szFileName = LPTSTR(szFileNameTmp); // hopefully it has at least the size [MAX_PATH]
+                HINSTANCE hInstance = GetModuleHandle(NULL);
 
-        break;
-    // Handling window display
-    case WM_PAINT:
-        {
-            if (!s_pCurrentSession->m_gameStarted)
+                GetModuleFileName(hInstance, szFileName, MAX_PATH);
+                MessageBox(hWnd, szFileName, L"This program is:", MB_OK | MB_ICONINFORMATION);
+            }
+        // Handling menu option actions
+        case WM_COMMAND:
             {
-                PAINTSTRUCT ps;
-                HDC hdc = BeginPaint(hWnd, &ps);
-                RECT rc;
-                TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
-                TCHAR selectTheme[] = _T("Please select a theme, a game type and enter your name");
-                // Here your application is laid out.
-                // in the top left corner.
-                TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
-                TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
-                // Initialize variables for controls
-                HFONT hfTextBox, hfButtonBox;
-                HWND hEditTextBox, hEditButtonBox;
-                // Create Input text box
-                hEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"User",
-                    WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
-                    15, 80, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
-                if (hEditTextBox == NULL)
-                    MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
-                hfTextBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-                SendMessage(hEditTextBox, WM_SETFONT, (WPARAM)hfTextBox, MAKELPARAM(FALSE, 0));
-                // Create Button box
-                hEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Start game",
-                    WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-                    105, 75, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
-                if (hEditButtonBox == NULL)
-                    MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
-                hfButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-                SendMessage(hEditButtonBox, WM_SETFONT, (WPARAM)hfButtonBox, MAKELPARAM(FALSE, 0));
-
-                FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
-                EndPaint(hWnd, &ps);
+                int wmId = LOWORD(wParam);
+                // Parse the menu selections:
+                switch (wmId)
+                {
+                case IDM_ABOUT:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                    break;
+                case IDM_RULES:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
+                    break;
+                case IDM_QUIZZTYPE_NARUTO:
+                    // Read input data
+                    init(hmenu, themes::Naruto);
+                    break;
+                case IDM_QUIZZTYPE_GOT:
+                    // Read input data
+                    init(hmenu, themes::GoT);
+                    break;
+                case IDM_MODE_TRAINING:
+                case IDM_MODE_EXAM:
+                    toggleMode(hmenu, menuItemTraining);
+                    break;
+                case IDC_MAIN_BUTTON:
+                    s_pCurrentSession->m_gameStarted = true;
+                    UpdateWindow(hWnd);
+                    ShowWindow(hEditTextBox, SW_HIDE);
+                    ShowWindow(hEditButtonBox, SW_HIDE);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                    break;
+                case IDM_EXIT:
+                    DestroyWindow(hWnd);
+                    break;
+                default:
+                    return DefWindowProc(hWnd, message, wParam, lParam);
+                }
             }
-            else
+            break;
+        case WM_CREATE: // Called at start
+            s_pCurrentSession = make_unique<CCurrentSession>();
+            // Initialize "rules" menu
+            ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
+            if (ibiki == NULL)
+                MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+            // Initialize "Mode" menu
+            menuItemTraining.cbSize = sizeof(MENUITEMINFO);
+            menuItemTraining.fMask = MIIM_STATE;
+            menuItemTraining.fState = MFS_CHECKED;
+            SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+
+            // Create Input text box
+            hEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"User",
+                WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+                15, 80, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
+            if (hEditTextBox == NULL)
+                MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+            hfTextBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hEditTextBox, WM_SETFONT, (WPARAM)hfTextBox, MAKELPARAM(FALSE, 0));
+            // Create Button box
+            hEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Start game",
+                WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+                105, 75, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
+            if (hEditButtonBox == NULL)
+                MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+            hfButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hEditButtonBox, WM_SETFONT, (WPARAM)hfButtonBox, MAKELPARAM(FALSE, 0));
+            ShowWindow(hEditTextBox, SW_SHOW);
+            ShowWindow(hEditButtonBox, SW_SHOW);
+            break;
+        // Handling window display
+        case WM_PAINT:
             {
+                if (!s_pCurrentSession->m_gameStarted)
+                {
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hWnd, &ps);
+                    RECT rc;
+                    TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
+                    TCHAR selectTheme[] = _T("Please select a theme, a game type and enter your name");
+                    // Here your application is laid out.
+                    // in the top left corner.
+                    TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
+                    TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
 
+                    FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
+                    EndPaint(hWnd, &ps);
+                }
+                else
+                {
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hWnd, &ps);
+                    RECT rc;
+                    TCHAR startQuizz[] = _T("Starting Quizz!");
+                    TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
+
+                    FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW+5));
+                    UpdateWindow(hWnd);
+                    EndPaint(hWnd, &ps);
+                }
             }
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+            break;
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
 }

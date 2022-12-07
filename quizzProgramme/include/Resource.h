@@ -3,8 +3,9 @@
 // Used by quizzProgramme.rc
 // See https://learn.microsoft.com/en-us/cpp/mfc/tn020-id-naming-and-numbering-conventions
 
+/// BEWARE: following values are decimals, whereas WM_* values are coded as HEX.
 // string ID
-#define IDS_APP_TITLE			103
+#define IDS_APP_TITLE				103
 // resource ID, primarily used for menus, accelerators, and ribbons
 #define IDR_MAINFRAME				128
 // Dialog ID

@@ -1,6 +1,7 @@
 
 // Using the following tutorials:
 https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp
+https://learn.microsoft.com/en-us/windows/win32/learnwin32/learn-to-program-for-windows
 https://learn.microsoft.com/en-us/windows/win32/menurc/resources
 http://www.winprog.org/tutorial
 
