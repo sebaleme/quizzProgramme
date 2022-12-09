@@ -11,8 +11,8 @@
 #include <vector>
 #include "../include/data_storing.hpp"
 
-string OUTPUT_PATH_GOT_1 = "..\\database\\got_1_result.csv";
-string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_1_result.csv";
+string OUTPUT_PATH_GOT_1 = "..\\database\\got_name_house.csv";
+string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_name_village.csv";
 
 map<themes,string> data_out_selection{
     {themes::GoT,OUTPUT_PATH_GOT_1},
@@ -87,6 +87,16 @@ themes CCurrentSession::getTheme()
 void CCurrentSession::setTheme(themes f_theme)
 {
     m_theme = f_theme;
+}
+
+quizz_mode CCurrentSession::getMode()
+{
+    return m_mode;
+}
+
+void CCurrentSession::setMode(quizz_mode f_mode)
+{
+    m_mode = f_mode;
 }
 
 void CCurrentSession::updateRecords()

@@ -53,6 +53,18 @@ void init(HMENU& f_hmenu, themes f_theme)
     SetMenuItemInfo(f_hmenu, IDM_QUIZZTYPE_GOT, FALSE, &menuItemGot);
 }
 
+void start()
+{
+    if (s_pCurrentSession->getMode() == quizz_mode::TEST)
+    {
+        test_mode(*s_pCurrentSession);
+    }
+    else // quizz_mode::TRAINING
+    {
+        training_mode(s_pCurrentSession->getTheme());
+    }
+}
+
 void toggleMode(HMENU& f_hmenu, MENUITEMINFO& f_menuItemTraining)
 {
     MENUITEMINFO menuItemExam = { 0 };
@@ -231,7 +243,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     init(hmenu, themes::GoT);
                     break;
                 case IDM_MODE_TRAINING:
+                    s_pCurrentSession->setMode(quizz_mode::TRAINING);
+                    toggleMode(hmenu, menuItemTraining);
+                    break;
                 case IDM_MODE_EXAM:
+                    s_pCurrentSession->setMode(quizz_mode::TEST);
                     toggleMode(hmenu, menuItemTraining);
                     break;
                 case IDC_MAIN_BUTTON:
@@ -240,6 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ShowWindow(hEditTextBox, SW_HIDE);
                     ShowWindow(hEditButtonBox, SW_HIDE);
                     InvalidateRect(hWnd, NULL, TRUE);
+                    start();
                     break;
                 case IDM_EXIT:
                     DestroyWindow(hWnd);

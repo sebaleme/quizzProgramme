@@ -39,10 +39,13 @@ public:
     void getHistory();
     void setTheme(themes f_theme);
     themes getTheme();
+    void setMode(quizz_mode f_mode);
+    quizz_mode getMode();
     // Dont want 3 methods to set/reset and read
     bool m_gameStarted;
 
 private:
+    quizz_mode m_mode;
     themes m_theme;
     record m_record;
     vector<record> m_records;
