@@ -15,11 +15,12 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HBITMAP ibiki = NULL;
 HDC hdcMem;
 themes s_selection;
+TCHAR question[256];
 std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
 
 // Initialize variables for controls
-HFONT hfTextBox, hfButtonBox;
-HWND hEditTextBox, hEditButtonBox;
+HFONT hfTextBox, hfButtonBox, hfAnswerTextBox, hfAnswerButtonBox;
+HWND hEditTextBox, hEditButtonBox, hAnswerEditTextBox, hAnswerEditButtonBox;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -32,6 +33,7 @@ void init(HMENU& f_hmenu, themes f_theme)
 {
     s_pCurrentSession->setTheme(f_theme);
     init_input_data(f_theme);
+    // Initialize "Theme" menu
     MENUITEMINFO menuItemNaruto = { 0 };
     MENUITEMINFO menuItemGot = { 0 };
     menuItemNaruto.cbSize = sizeof(MENUITEMINFO);
@@ -255,6 +257,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     UpdateWindow(hWnd);
                     ShowWindow(hEditTextBox, SW_HIDE);
                     ShowWindow(hEditButtonBox, SW_HIDE);
+                    ShowWindow(hAnswerEditTextBox, SW_SHOW);
+                    ShowWindow(hAnswerEditButtonBox, SW_SHOW);
                     InvalidateRect(hWnd, NULL, TRUE);
                     start();
                     break;
@@ -277,8 +281,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             menuItemTraining.fMask = MIIM_STATE;
             menuItemTraining.fState = MFS_CHECKED;
             SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
+            // Initialize "Theme" menu
+            init(hmenu, themes::Naruto);
 
-            // Create Input text box
+            // Create username input text box
             hEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"User",
                 WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
                 15, 80, 85, 20, hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
@@ -286,7 +292,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
             hfTextBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
             SendMessage(hEditTextBox, WM_SETFONT, (WPARAM)hfTextBox, MAKELPARAM(FALSE, 0));
-            // Create Button box
+
+            // Create answer input text box hfAnswerTextBox, hfAnswerButtonBox;
+            hAnswerEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
+                WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+                15, 200, 250, 20, hWnd, (HMENU)IDC_ANSWER_EDIT, GetModuleHandle(NULL), NULL);
+            if (hAnswerEditTextBox == NULL)
+                MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+            hfAnswerTextBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hAnswerEditTextBox, WM_SETFONT, (WPARAM)hfAnswerTextBox, MAKELPARAM(FALSE, 0));
+
+            // Create start Button box
             hEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Start game",
                 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
                 105, 75, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
@@ -294,8 +310,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
             hfButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
             SendMessage(hEditButtonBox, WM_SETFONT, (WPARAM)hfButtonBox, MAKELPARAM(FALSE, 0));
+
+            // Create answer Button box
+            hAnswerEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Send",
+                WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+                270, 200, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
+            if (hAnswerEditButtonBox == NULL)
+                MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+            hfAnswerButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hAnswerEditButtonBox, WM_SETFONT, (WPARAM)hfAnswerButtonBox, MAKELPARAM(FALSE, 0));
+
             ShowWindow(hEditTextBox, SW_SHOW);
             ShowWindow(hEditButtonBox, SW_SHOW);
+            ShowWindow(hAnswerEditTextBox, SW_HIDE);
+            ShowWindow(hAnswerEditButtonBox, SW_HIDE);
             break;
         // Handling window display
         case WM_PAINT:

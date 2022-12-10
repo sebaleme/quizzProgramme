@@ -27,11 +27,13 @@
 #define IDC_QUIZZPROGRAMME			114
 #define IDC_MAIN_EDIT				115
 #define IDC_MAIN_BUTTON             116
+#define IDC_ANSWER_EDIT             117
+#define IDC_ANSWER_BUTTON           118
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 // Bitmap ID
-#define IDB_IBIKI					117
+#define IDB_IBIKI					119
 #endif
 // Next default values for new objects
 //
