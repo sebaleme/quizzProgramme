@@ -29,7 +29,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="quizzProgramme.cpp">
+    <ClCompile Include="src\\quizzProgramme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\\data_storing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
