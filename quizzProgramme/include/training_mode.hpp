@@ -15,6 +15,18 @@
 
 using namespace std;
 
+string training_mode_question(themes f_theme, HWND hWnd)
+{
+    int indexPeople{ rand() % static_cast<int>(s_people_with_gt.size()) };
+
+    // Interaction with user
+    string question{ "from which village is " };
+    question.append(s_people_with_gt[indexPeople].first);
+    question.append(" ?");
+    return question;
+}
+
+
 void training_mode(themes f_theme)
 {
     int indexPeople{rand() % static_cast<int>(s_people_with_gt.size())};

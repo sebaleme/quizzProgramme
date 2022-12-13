@@ -17,6 +17,7 @@ HDC hdcMem;
 themes s_selection;
 TCHAR question[256];
 std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
+string s_question;
 
 // Initialize variables for controls
 HFONT hfTextBox, hfButtonBox, hfAnswerTextBox, hfAnswerButtonBox;
@@ -63,7 +64,6 @@ void start()
     }
     else // quizz_mode::TRAINING
     {
-        training_mode(s_pCurrentSession->getTheme());
     }
 }
 
@@ -99,8 +99,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-    // TODO: Place code here.
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -262,6 +260,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     InvalidateRect(hWnd, NULL, TRUE);
                     start();
                     break;
+                case IDC_ANSWER_BUTTON:
+                    training_mode_answer(s_pCurrentSession->getTheme());
+                    break;
                 case IDM_EXIT:
                     DestroyWindow(hWnd);
                     break;
@@ -314,7 +315,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Create answer Button box
             hAnswerEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Send",
                 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-                270, 200, 85, 30, hWnd, (HMENU)IDC_MAIN_BUTTON, GetModuleHandle(NULL), NULL);
+                270, 200, 85, 30, hWnd, (HMENU)IDC_ANSWER_BUTTON, GetModuleHandle(NULL), NULL);
             if (hAnswerEditButtonBox == NULL)
                 MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
             hfAnswerButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -350,6 +351,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     RECT rc;
                     TCHAR startQuizz[] = _T("Starting Quizz!");
                     TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
+                    // Print question
+                    s_question = training_mode_question(s_pCurrentSession->getTheme(), hWnd);
+                    TextOutA(hdc, 25, 120, s_question.c_str(), 30);
 
                     FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW+5));
                     UpdateWindow(hWnd);
