@@ -19,7 +19,7 @@ map<themes,string> data_out_selection{
     {themes::Naruto,OUTPUT_PATH_NARUTO_1},
 };
 
-CCurrentSession::CCurrentSession() : m_theme{themes::Invalid}
+CCurrentSession::CCurrentSession() : m_indexPeople{0}, m_theme { themes::Invalid }
 {
     while(m_record.name.length() == 0)
     {
@@ -47,6 +47,11 @@ void CCurrentSession::incr_score()
     m_record.result += 1;
 };
 
+void CCurrentSession::resetScore()
+{
+    m_record.result = 0;
+};
+
 int CCurrentSession::get_questionNumber()
 {
     return m_record.questionNumber;
@@ -55,6 +60,11 @@ int CCurrentSession::get_questionNumber()
 void CCurrentSession::incr_questionNumber()
 {
     m_record.questionNumber += 1;
+};
+
+void CCurrentSession::resetQuestionNumber()
+{
+    m_record.questionNumber = 0;
 };
 
 void CCurrentSession::getHistory()

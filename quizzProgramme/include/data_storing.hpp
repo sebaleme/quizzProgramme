@@ -36,8 +36,10 @@ public:
     void displayScores();
     int get_score();
     void incr_score();
+    void resetScore();
     int get_questionNumber();
     void incr_questionNumber();
+    void resetQuestionNumber();
     void store();
     void getHistory();
     void setTheme(themes f_theme);
@@ -46,7 +48,7 @@ public:
     quizz_mode getMode();
     // Dont want 3 methods to set/reset and read
     bool m_gameStarted;
-
+    int m_indexPeople;
 private:
     quizz_mode m_mode;
     themes m_theme;

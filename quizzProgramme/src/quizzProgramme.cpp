@@ -71,6 +71,8 @@ void start()
 void stop(HWND f_hWnd)
 {
     s_pCurrentSession->m_gameStarted = false;
+    s_pCurrentSession->resetQuestionNumber();
+    s_pCurrentSession->resetScore();
     UpdateWindow(f_hWnd);
     ShowWindow(hEditTextBox, SW_SHOW);
     ShowWindow(hEditButtonBox, SW_SHOW);
@@ -381,7 +383,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer);
                     TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
                     // Print question
-                    s_question = training_mode_question(s_pCurrentSession->getTheme(), hWnd);
+                    s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
                     TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
 
                     // Print score
