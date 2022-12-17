@@ -59,7 +59,9 @@ void init(HMENU& f_hmenu, themes f_theme)
 
 void stop(HWND f_hWnd)
 {
-    s_pCurrentSession->m_gameStarted = false;
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - s_pCurrentSession->getStart();
+    s_pCurrentSession->set_duration(static_cast<int>(elapsed_seconds.count()));
     s_pCurrentSession->resetQuestionNumber();
     s_pCurrentSession->resetScore();
     UpdateWindow(f_hWnd);
@@ -267,7 +269,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     break;
                 case IDC_ANSWER_BUTTON:
                     // All processing is done in case WM_PAINT
-                    InvalidateRect(hWnd, NULL, TRUE);
+                    if ((s_pCurrentSession->getMode() == quizz_mode::TEST) && (s_pCurrentSession->get_questionNumber() > 10))
+                    {
+                        // for the test, limit the question number
+                        stop(hWnd);
+                    }
+                    else
+                    {
+                        InvalidateRect(hWnd, NULL, TRUE);
+                    }
                     break;
                 case IDM_EXIT:
                     DestroyWindow(hWnd);
@@ -356,6 +366,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     // in the top left corner.
                     TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
                     TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
+                    // Display previous test results
+                    if (s_pCurrentSession->m_gameStarted == true)
+                    {
+                        TCHAR score[] = _T("Score:");
+                        TextOut(hdc, 5, 65, score, _tcslen(score));
+                        s_pCurrentSession->m_gameStarted = false;
+                    }
 
                     FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
                     EndPaint(hWnd, &ps);
@@ -370,7 +387,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                     // Print evaluation
                     // No evaluation before the first question has been asked
-                    if ((s_pCurrentSession->get_questionNumber() > 0) && (s_pCurrentSession->getMode() == quizz_mode::TEST))
+                    if ((s_pCurrentSession->get_questionNumber() > 0) && (s_pCurrentSession->getMode() == quizz_mode::TRAINING))
                     {
                         TCHAR answer[30];
                         string evaluation;

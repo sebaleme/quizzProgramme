@@ -19,7 +19,7 @@ map<themes,string> data_out_selection{
     {themes::Naruto,OUTPUT_PATH_NARUTO_1},
 };
 
-CCurrentSession::CCurrentSession() : m_indexPeople{0}, m_theme { themes::Invalid }
+CCurrentSession::CCurrentSession() : m_indexPeople{ 0 }, m_mode{quizz_mode::TRAINING}, m_theme{ themes::Naruto }
 {
     while(m_record.name.length() == 0)
     {
