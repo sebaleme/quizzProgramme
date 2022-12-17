@@ -378,11 +378,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                     // Print evaluation
                     TCHAR answer[30];
-                    string evaluation;
-                    GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
-                    evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer);
-                    TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
+                    if (s_pCurrentSession->get_questionNumber() > 0)
+                    {
+                        string evaluation;
+                        bool correctness{false};
+                        GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
+                        evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer, correctness);
+                        correctness ? SetTextColor(hdc, RGB(0, 255, 0)) : SetTextColor(hdc, RGB(255, 0, 0));
+                        SetBkColor(hdc, 0xc000000);
+                        TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
+                    }
                     // Print question
+                    SetBkColor(hdc, RGB(255, 255, 255));
+                    SetTextColor(hdc, RGB(0, 0, 0));
                     s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
                     TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
 

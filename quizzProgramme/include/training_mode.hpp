@@ -18,6 +18,7 @@ using namespace std;
 string training_mode_question(CCurrentSession* f_currentSession, HWND hWnd)
 {
     f_currentSession->m_indexPeople = rand() % static_cast<int>(s_people_with_gt.size());
+    f_currentSession->incr_questionNumber();
 
     // Interaction with user
     string question{ "from which village is " };
@@ -26,7 +27,7 @@ string training_mode_question(CCurrentSession* f_currentSession, HWND hWnd)
     return question;
 }
 
-string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer)
+string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer, bool& f_correct)
 {
     // Interaction with user
     wstring test(&f_answer[0]); //convert to wstring
@@ -42,6 +43,7 @@ string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer
         {
             evaluation.append("nice one");
             f_currentSession->incr_score();
+            f_correct = true;
         }
         else
         {
@@ -53,7 +55,6 @@ string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer
         evaluation.append("wrong, this is not even a village in ");
         //evaluation.append(cout_2[static_cast<int>(f_theme)]);
     }
-    f_currentSession->incr_questionNumber();
     return evaluation;
 }
 
