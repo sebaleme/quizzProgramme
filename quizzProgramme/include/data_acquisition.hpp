@@ -93,7 +93,8 @@ ostream& operator<<(ostream& f_out, const themes f_input)
 
 // interface to access data
 string INPUT_PATH_GOT_1 = "..\\database\\got_name_house.csv";
-string INPUT_PATH_NARUTO_1 = "..\\database\\naruto_name_village.csv";
+//string INPUT_PATH_NARUTO_1 = "..\\database\\naruto_name_village.csv";
+string INPUT_PATH_NARUTO_1 = "C:\\Users\\lsm1so\\source\\repos\\quizzProgramme\\quizzProgramme\\database\\naruto_name_village.csv";
 map<themes, string> data_in_selection{
     {themes::GoT,INPUT_PATH_GOT_1},
     {themes::Naruto,INPUT_PATH_NARUTO_1},

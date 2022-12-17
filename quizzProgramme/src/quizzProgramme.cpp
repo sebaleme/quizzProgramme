@@ -261,7 +261,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     start();
                     break;
                 case IDC_ANSWER_BUTTON:
+                    TCHAR answer[128];
+                    GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 128);
+                    training_mode_evaluate(s_pCurrentSession->getTheme(), answer);
                     training_mode_answer(s_pCurrentSession->getTheme());
+                    InvalidateRect(hWnd, NULL, TRUE);
                     break;
                 case IDM_EXIT:
                     DestroyWindow(hWnd);

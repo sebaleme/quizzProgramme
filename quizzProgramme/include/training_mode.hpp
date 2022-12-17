@@ -26,6 +26,49 @@ string training_mode_question(themes f_theme, HWND hWnd)
     return question;
 }
 
+string training_mode_evaluate(themes f_theme, TCHAR* f_answer)
+{
+    int indexPeople{ rand() % static_cast<int>(s_people_with_gt.size()) };
+
+    // Interaction with user
+    wstring test(&f_answer[0]); //convert to wstring
+    string answerGT(test.begin(), test.end()); //and convert to string.
+
+    // Process user response
+    string evaluation{ "" };
+    std::vector<string>::iterator houseIt;
+    houseIt = find(s_house.begin(), s_house.end(), answerGT);
+    if (houseIt != s_house.end())
+    {
+        if (*houseIt == s_house[s_people_with_gt[indexPeople].second])
+        {
+            evaluation.append("nice one");
+            //score++;
+        }
+        else
+        {
+            evaluation.append("nope!");
+        }
+    }
+    else
+    {
+        evaluation.append("wrong, this is not even a village in ");
+        //evaluation.append(cout_2[static_cast<int>(f_theme)]);
+    }
+    return evaluation;
+}
+
+
+
+
+
+
+
+
+void training_mode_answer(themes f_theme)
+{
+
+}
 
 void training_mode(themes f_theme)
 {
