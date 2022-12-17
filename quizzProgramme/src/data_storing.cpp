@@ -104,6 +104,16 @@ themes CCurrentSession::getTheme()
     return m_theme;
 }
 
+void CCurrentSession::setStart()
+{
+    m_start = std::chrono::system_clock::now();
+}
+
+std::chrono::system_clock::time_point CCurrentSession::getStart()
+{
+    return m_start;
+}
+
 void CCurrentSession::setTheme(themes f_theme)
 {
     m_theme = f_theme;

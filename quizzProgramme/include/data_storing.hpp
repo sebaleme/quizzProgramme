@@ -14,6 +14,8 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <time.h>
+#include <chrono>
 #include "..\\include\\quizz_interfaces.hpp"
 
 using namespace std;
@@ -45,11 +47,14 @@ public:
     void setTheme(themes f_theme);
     themes getTheme();
     void setMode(quizz_mode f_mode);
+    void setStart();
+    std::chrono::system_clock::time_point getStart();
     quizz_mode getMode();
     // Dont want 3 methods to set/reset and read
     bool m_gameStarted;
     int m_indexPeople;
 private:
+    std::chrono::system_clock::time_point m_start;
     quizz_mode m_mode;
     themes m_theme;
     record m_record;

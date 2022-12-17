@@ -26,8 +26,8 @@ using namespace std;
 std::vector<pair<string, int>> s_people_with_gt;
 std::vector<string> s_house;
 
-array<string, 2> cout_1{ "house","village" };
-array<string, 2> cout_2{ "GoT","Naruto" };
+array<string, 3> cout_1{ "invalid","house","village" };
+array<string, 3> cout_2{ "invalid","GoT","Naruto" };
 
 // Helper function for converting types
 static wchar_t* charToWChar(const char* text)

@@ -57,17 +57,6 @@ void init(HMENU& f_hmenu, themes f_theme)
     SetMenuItemInfo(f_hmenu, IDM_QUIZZTYPE_GOT, FALSE, &menuItemGot);
 }
 
-void start()
-{
-    if (s_pCurrentSession->getMode() == quizz_mode::TEST)
-    {
-        test_mode(*s_pCurrentSession);
-    }
-    else // quizz_mode::TRAINING
-    {
-    }
-}
-
 void stop(HWND f_hWnd)
 {
     s_pCurrentSession->m_gameStarted = false;
@@ -261,6 +250,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     break;
                 case IDC_MAIN_BUTTON:
                     s_pCurrentSession->m_gameStarted = true;
+                    if (s_pCurrentSession->getMode() == quizz_mode::TEST)
+                    {
+                        s_pCurrentSession->setStart();
+                    }
                     UpdateWindow(hWnd);
                     ShowWindow(hEditTextBox, SW_HIDE);
                     ShowWindow(hEditButtonBox, SW_HIDE);
@@ -268,7 +261,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ShowWindow(hAnswerEditTextBox, SW_SHOW);
                     ShowWindow(hAnswerEditButtonBox, SW_SHOW);
                     InvalidateRect(hWnd, NULL, TRUE);
-                    start();
                     break;
                 case IDC_STOP_BUTTON:
                     stop(hWnd);
@@ -377,9 +369,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
 
                     // Print evaluation
-                    TCHAR answer[30];
-                    if (s_pCurrentSession->get_questionNumber() > 0)
+                    // No evaluation before the first question has been asked
+                    if ((s_pCurrentSession->get_questionNumber() > 0) && (s_pCurrentSession->getMode() == quizz_mode::TEST))
                     {
+                        TCHAR answer[30];
                         string evaluation;
                         bool correctness{false};
                         GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
@@ -388,17 +381,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         SetBkColor(hdc, 0xc000000);
                         TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
                     }
-                    // Print question
-                    SetBkColor(hdc, RGB(255, 255, 255));
-                    SetTextColor(hdc, RGB(0, 0, 0));
-                    s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
-                    TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
 
-                    // Print score
-                    string Score = to_string(s_pCurrentSession->get_score());
-                    Score.append("/");
-                    Score.append(to_string(s_pCurrentSession->get_questionNumber()-1));
-                    TextOutA(hdc, 150, 100, Score.c_str(), _tcslen(charToWChar(Score.c_str())));
+                    if (s_pCurrentSession->getMode() == quizz_mode::TRAINING)
+                    {
+                        // Print question
+                        SetBkColor(hdc, RGB(255, 255, 255));
+                        SetTextColor(hdc, RGB(0, 0, 0));
+                        s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
+                        TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
+
+                        // Print score
+                        string Score = to_string(s_pCurrentSession->get_score());
+                        Score.append("/");
+                        Score.append(to_string(s_pCurrentSession->get_questionNumber() - 1));
+                        TextOutA(hdc, 150, 100, Score.c_str(), _tcslen(charToWChar(Score.c_str())));
+                    }
+                    else // test mode
+                    {
+                        // Print question
+                        SetBkColor(hdc, RGB(255, 255, 255));
+                        SetTextColor(hdc, RGB(0, 0, 0));
+                        s_question = test_mode_question(s_pCurrentSession.get(), hWnd);
+                        TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
+                    }
 
                     FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW+5));
                     UpdateWindow(hWnd);
