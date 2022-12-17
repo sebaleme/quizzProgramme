@@ -22,6 +22,7 @@ struct record
 {
     string name;
     int result;
+    int questionNumber;
     int time;
 };
 
@@ -35,6 +36,8 @@ public:
     void displayScores();
     int get_score();
     void incr_score();
+    int get_questionNumber();
+    void incr_questionNumber();
     void store();
     void getHistory();
     void setTheme(themes f_theme);

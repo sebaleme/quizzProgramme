@@ -18,6 +18,8 @@
 #include <vector>
 #include "..\\include\\quizz_interfaces.hpp"
 
+// Deactivate warning for mbstowcs being unsafe
+#pragma warning(disable : 4996) //_CRT_SECURE_NO_WARNINGS
 
 using namespace std;
 
@@ -26,6 +28,15 @@ std::vector<string> s_house;
 
 array<string, 2> cout_1{ "house","village" };
 array<string, 2> cout_2{ "GoT","Naruto" };
+
+// Helper function for converting types
+static wchar_t* charToWChar(const char* text)
+{
+    const size_t size = strlen(text) + 1;
+    wchar_t* wText = new wchar_t[size];
+    mbstowcs(wText, text, size);
+    return wText;
+}
 
 // Helper function, overloading operator
 ostream& operator<<(ostream& f_out, const quizz_mode f_input)

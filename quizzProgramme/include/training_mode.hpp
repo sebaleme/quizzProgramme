@@ -26,7 +26,7 @@ string training_mode_question(themes f_theme, HWND hWnd)
     return question;
 }
 
-string training_mode_evaluate(themes f_theme, TCHAR* f_answer)
+string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer)
 {
     int indexPeople{ rand() % static_cast<int>(s_people_with_gt.size()) };
 
@@ -43,7 +43,7 @@ string training_mode_evaluate(themes f_theme, TCHAR* f_answer)
         if (*houseIt == s_house[s_people_with_gt[indexPeople].second])
         {
             evaluation.append("nice one");
-            //score++;
+            f_currentSession->incr_score();
         }
         else
         {
@@ -55,6 +55,7 @@ string training_mode_evaluate(themes f_theme, TCHAR* f_answer)
         evaluation.append("wrong, this is not even a village in ");
         //evaluation.append(cout_2[static_cast<int>(f_theme)]);
     }
+    f_currentSession->incr_questionNumber();
     return evaluation;
 }
 

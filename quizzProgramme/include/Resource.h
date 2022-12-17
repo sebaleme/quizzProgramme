@@ -26,14 +26,15 @@
 // Control ID
 #define IDC_QUIZZPROGRAMME			114
 #define IDC_MAIN_EDIT				115
-#define IDC_MAIN_BUTTON             116
-#define IDC_ANSWER_EDIT             117
-#define IDC_ANSWER_BUTTON           118
+#define IDC_STOP_BUTTON             116
+#define IDC_MAIN_BUTTON             117
+#define IDC_ANSWER_EDIT             118
+#define IDC_ANSWER_BUTTON           119
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 // Bitmap ID
-#define IDB_IBIKI					119
+#define IDB_IBIKI					120
 #endif
 // Next default values for new objects
 //

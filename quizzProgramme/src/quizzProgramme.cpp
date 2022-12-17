@@ -5,6 +5,7 @@
 #include "..\\include\\data_acquisition.hpp"
 #include "..\\include\\test_mode.hpp"
 #include "..\\include\\training_mode.hpp"
+#include <string> 
 
 #define MAX_LOADSTRING 100
 
@@ -20,8 +21,8 @@ std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
 string s_question;
 
 // Initialize variables for controls
-HFONT hfTextBox, hfButtonBox, hfAnswerTextBox, hfAnswerButtonBox;
-HWND hEditTextBox, hEditButtonBox, hAnswerEditTextBox, hAnswerEditButtonBox;
+HFONT hfTextBox, hfButtonBox, hfStopButtonBox, hfAnswerTextBox, hfAnswerButtonBox;
+HWND hEditTextBox, hEditButtonBox, hEditStopButtonBox, hAnswerEditTextBox, hAnswerEditButtonBox;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -65,6 +66,18 @@ void start()
     else // quizz_mode::TRAINING
     {
     }
+}
+
+void stop(HWND f_hWnd)
+{
+    s_pCurrentSession->m_gameStarted = false;
+    UpdateWindow(f_hWnd);
+    ShowWindow(hEditTextBox, SW_SHOW);
+    ShowWindow(hEditButtonBox, SW_SHOW);
+    ShowWindow(hEditStopButtonBox, SW_HIDE);
+    ShowWindow(hAnswerEditTextBox, SW_HIDE);
+    ShowWindow(hAnswerEditButtonBox, SW_HIDE);
+    InvalidateRect(f_hWnd, NULL, TRUE);
 }
 
 void toggleMode(HMENU& f_hmenu, MENUITEMINFO& f_menuItemTraining)
@@ -211,16 +224,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-        // Handling left mouse clicks
-        case WM_LBUTTONDOWN:
-            {
-                char szFileNameTmp[MAX_PATH]; 
-                LPWSTR szFileName = LPTSTR(szFileNameTmp); // hopefully it has at least the size [MAX_PATH]
-                HINSTANCE hInstance = GetModuleHandle(NULL);
-
-                GetModuleFileName(hInstance, szFileName, MAX_PATH);
-                MessageBox(hWnd, szFileName, L"This program is:", MB_OK | MB_ICONINFORMATION);
-            }
         // Handling menu option actions
         case WM_COMMAND:
             {
@@ -235,36 +238,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
                     break;
                 case IDM_QUIZZTYPE_NARUTO:
+                    stop(hWnd);
                     // Read input data
                     init(hmenu, themes::Naruto);
                     break;
                 case IDM_QUIZZTYPE_GOT:
+                    stop(hWnd);
                     // Read input data
                     init(hmenu, themes::GoT);
                     break;
                 case IDM_MODE_TRAINING:
                     s_pCurrentSession->setMode(quizz_mode::TRAINING);
                     toggleMode(hmenu, menuItemTraining);
+                    stop(hWnd);
                     break;
                 case IDM_MODE_EXAM:
                     s_pCurrentSession->setMode(quizz_mode::TEST);
                     toggleMode(hmenu, menuItemTraining);
+                    stop(hWnd);
                     break;
                 case IDC_MAIN_BUTTON:
                     s_pCurrentSession->m_gameStarted = true;
                     UpdateWindow(hWnd);
                     ShowWindow(hEditTextBox, SW_HIDE);
                     ShowWindow(hEditButtonBox, SW_HIDE);
+                    ShowWindow(hEditStopButtonBox, SW_SHOW);
                     ShowWindow(hAnswerEditTextBox, SW_SHOW);
                     ShowWindow(hAnswerEditButtonBox, SW_SHOW);
                     InvalidateRect(hWnd, NULL, TRUE);
                     start();
                     break;
+                case IDC_STOP_BUTTON:
+                    stop(hWnd);
+                    break;
                 case IDC_ANSWER_BUTTON:
-                    TCHAR answer[128];
-                    GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 128);
-                    training_mode_evaluate(s_pCurrentSession->getTheme(), answer);
-                    training_mode_answer(s_pCurrentSession->getTheme());
+                    // All processing is done in case WM_PAINT
                     InvalidateRect(hWnd, NULL, TRUE);
                     break;
                 case IDM_EXIT:
@@ -316,6 +324,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             hfButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
             SendMessage(hEditButtonBox, WM_SETFONT, (WPARAM)hfButtonBox, MAKELPARAM(FALSE, 0));
 
+            // Create stop Button box
+            hEditStopButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Stop game",
+                WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+                155, 275, 85, 30, hWnd, (HMENU)IDC_STOP_BUTTON, GetModuleHandle(NULL), NULL);
+            if (hEditStopButtonBox == NULL)
+                MessageBox(hWnd, _T("Could not create edit box."), L"Error", MB_OK | MB_ICONERROR);
+            hfStopButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hEditStopButtonBox, WM_SETFONT, (WPARAM)hfStopButtonBox, MAKELPARAM(FALSE, 0));
+
             // Create answer Button box
             hAnswerEditButtonBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"BUTTON", L"Send",
                 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
@@ -327,6 +344,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             ShowWindow(hEditTextBox, SW_SHOW);
             ShowWindow(hEditButtonBox, SW_SHOW);
+            ShowWindow(hEditStopButtonBox, SW_HIDE);
             ShowWindow(hAnswerEditTextBox, SW_HIDE);
             ShowWindow(hAnswerEditButtonBox, SW_HIDE);
             break;
@@ -355,9 +373,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     RECT rc;
                     TCHAR startQuizz[] = _T("Starting Quizz!");
                     TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
+
+                    // Print evaluation
+                    TCHAR answer[30];
+                    string evaluation;
+                    GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
+                    evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer);
+                    TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
                     // Print question
                     s_question = training_mode_question(s_pCurrentSession->getTheme(), hWnd);
-                    TextOutA(hdc, 25, 120, s_question.c_str(), 30);
+                    TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
+
+                    // Print score
+                    string Score = to_string(s_pCurrentSession->get_score());
+                    Score.append("/");
+                    Score.append(to_string(s_pCurrentSession->get_questionNumber()-1));
+                    TextOutA(hdc, 150, 100, Score.c_str(), _tcslen(charToWChar(Score.c_str())));
 
                     FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW+5));
                     UpdateWindow(hWnd);

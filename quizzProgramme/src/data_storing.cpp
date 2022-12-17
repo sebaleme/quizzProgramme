@@ -47,6 +47,16 @@ void CCurrentSession::incr_score()
     m_record.result += 1;
 };
 
+int CCurrentSession::get_questionNumber()
+{
+    return m_record.questionNumber;
+};
+
+void CCurrentSession::incr_questionNumber()
+{
+    m_record.questionNumber += 1;
+};
+
 void CCurrentSession::getHistory()
 {
     ifstream fin(data_out_selection[m_theme].c_str());
