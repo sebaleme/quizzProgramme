@@ -28,6 +28,15 @@ struct record
     int time;
 };
 
+enum class EGameState
+{
+    invalid = 0,
+    not_started,
+    started,
+    finished
+
+};
+
 class CCurrentSession
 {
 public:
@@ -51,7 +60,7 @@ public:
     std::chrono::system_clock::time_point getStart();
     quizz_mode getMode();
     // Dont want 3 methods to set/reset and read
-    bool m_gameStarted;
+    EGameState m_gameStarted;
     int m_indexPeople;
 private:
     std::chrono::system_clock::time_point m_start;

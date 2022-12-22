@@ -16,7 +16,6 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HBITMAP ibiki = NULL;
 HDC hdcMem;
 themes s_selection;
-TCHAR question[256];
 std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
 string s_question;
 
@@ -64,6 +63,7 @@ void stop(HWND f_hWnd)
     s_pCurrentSession->set_duration(static_cast<int>(elapsed_seconds.count()));
     s_pCurrentSession->resetQuestionNumber();
     s_pCurrentSession->resetScore();
+    s_pCurrentSession->m_gameStarted = EGameState::finished;
     UpdateWindow(f_hWnd);
     ShowWindow(hEditTextBox, SW_SHOW);
     ShowWindow(hEditButtonBox, SW_SHOW);
@@ -251,7 +251,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     stop(hWnd);
                     break;
                 case IDC_MAIN_BUTTON:
-                    s_pCurrentSession->m_gameStarted = true;
+                    s_pCurrentSession->m_gameStarted = EGameState::started;
                     if (s_pCurrentSession->getMode() == quizz_mode::TEST)
                     {
                         s_pCurrentSession->setStart();
@@ -355,10 +355,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Handling window display
         case WM_PAINT:
             {
-                if (!s_pCurrentSession->m_gameStarted)
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hWnd, &ps);
+
+                // Display previous test results
+                if (s_pCurrentSession->m_gameStarted == EGameState::finished)
                 {
-                    PAINTSTRUCT ps;
-                    HDC hdc = BeginPaint(hWnd, &ps);
+                    TCHAR score[] = _T("Score:");
+                    TextOut(hdc, 5, 125, score, _tcslen(score));
+                    s_pCurrentSession->m_gameStarted = EGameState::not_started;
+                }
+
+                // Reset view
+                if (s_pCurrentSession->m_gameStarted == EGameState::not_started)
+                {
                     RECT rc;
                     TCHAR greeting[] = _T("Hello, welcome in this quizz test!");
                     TCHAR selectTheme[] = _T("Please select a theme, a game type and enter your name");
@@ -366,22 +376,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     // in the top left corner.
                     TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
                     TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
-                    // Display previous test results
-                    if (s_pCurrentSession->m_gameStarted == true)
-                    {
-                        TCHAR score[] = _T("Score:");
-                        TextOut(hdc, 5, 65, score, _tcslen(score));
-                        s_pCurrentSession->m_gameStarted = false;
-                    }
 
                     FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW));
                     EndPaint(hWnd, &ps);
                 }
                 else
                 {
-                    PAINTSTRUCT ps;
-                    HDC hdc = BeginPaint(hWnd, &ps);
-                    RECT rc;
+                    RECT rc2;
                     TCHAR startQuizz[] = _T("Starting Quizz!");
                     TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
 
@@ -422,7 +423,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
                     }
 
-                    FillRect(hdc, &rc, GetSysColorBrush(COLOR_WINDOW+5));
+                    FillRect(hdc, &rc2, GetSysColorBrush(COLOR_WINDOW+5));
                     UpdateWindow(hWnd);
                     EndPaint(hWnd, &ps);
                 }

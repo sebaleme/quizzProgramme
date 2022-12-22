@@ -11,9 +11,10 @@
 #include <vector>
 #include "../include/data_storing.hpp"
 
+//string OUTPUT_PATH_GOT_1 = "..\\database\\got_best_scores.csv";
+//string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_best_scores.csv";
 string OUTPUT_PATH_GOT_1 = "..\\database\\got_name_house.csv";
 string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_name_village.csv";
-
 map<themes,string> data_out_selection{
     {themes::GoT,OUTPUT_PATH_GOT_1},
     {themes::Naruto,OUTPUT_PATH_NARUTO_1},
@@ -28,7 +29,7 @@ CCurrentSession::CCurrentSession() : m_indexPeople{ 0 }, m_mode{quizz_mode::TRAI
         m_record.name = "user";
     }
     m_record.result = 0;
-    m_gameStarted = false;
+    m_gameStarted = EGameState::not_started;
     getHistory();
 };
 
@@ -88,8 +89,24 @@ void CCurrentSession::getHistory()
 
             while(getline(ss,word,','))
             {
-                if(iter == 0) rec.result = stoi(word);
-                else if (iter == 1) rec.time = stoi(word);
+                if (iter == 0)
+                {
+                    try {
+                        rec.result = stoi(word);
+                    }
+                    catch (std::exception& e) {
+                        std::cout << "error converting string to number. Correct CSV file?" << '\n';
+                    }
+                }
+                else if (iter == 1)
+                {
+                    try {
+                        rec.time = stoi(word);
+                    }
+                    catch (std::exception& e) {
+                        std::cout << "error converting string to number. Correct CSV file?" << '\n';
+                    }
+                }
                 else if (iter == 2) rec.name = word;
                 else cout << "Error during reading records" << endl;
                 iter++;
