@@ -49,7 +49,6 @@ public:
     void get_credencials();
     void set_duration(int f_duration);
     void updateRecords();
-    void displayScores();
     int get_score();
     int get_scorePercent();
     void incr_score();
@@ -70,12 +69,12 @@ public:
     EGameState m_gameStarted;
     int m_indexPeople;
     bool m_isScoreAvailable;
+    vector<record> m_records;
 private:
     std::chrono::system_clock::time_point m_start;
     quizz_mode m_mode;
     themes m_theme;
     record m_record;
-    vector<record> m_records;
 };
 
 

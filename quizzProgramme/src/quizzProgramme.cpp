@@ -236,6 +236,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case IDM_HINTS:
                     DialogBox(hInst, MAKEINTRESOURCE(IDD_HINTS), hWnd, Hints);
                     break;
+                case IDM_BEST_SCORES:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_BEST_SCORES), hWnd, BestScores);
+                    break;
                 case IDM_QUIZZTYPE_NARUTO:
                     stop(hWnd);
                     // Read input data
@@ -616,18 +619,29 @@ INT_PTR CALLBACK BestScores(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
         PAINTSTRUCT ps;
 
         HDC hdc = BeginPaint(hWnd, &ps);
-
-        HDC hdcMem = CreateCompatibleDC(hdc);
-        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, worldMapImage));
-
-        GetObject(worldMapImage, sizeof(bm), &bm);
-
-        BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
-
-        SelectObject(hdcMem, hbmOld);
-        DeleteDC(hdcMem);
+        string scoreLigne{ "" };
+        if (s_pCurrentSession->m_records.empty())
+        {
+            string noScore{ "No score yet to display" };
+            TextOutA(hdc, 20, 20, noScore.c_str(), _tcslen(charToWChar(noScore.c_str())));
+        }
+        else
+        {
+            int index{ 1 };
+            int horPosition{ 20 };
+            for (const auto& rec : s_pCurrentSession->m_records)
+            {
+                scoreLigne = to_string(index) + " " + rec.name + " " + to_string(rec.result) + "pts";
+                RECT rc;
+                SetRect(&rc, 20, horPosition, 300, 300);
+                DrawTextA(hdc, scoreLigne.c_str(), scoreLigne.size(), &rc, DT_LEFT | DT_EXTERNALLEADING | DT_WORDBREAK);
+                horPosition += 20;
+                if (index++ > 10) break;
+            }
+        }
 
         EndPaint(hWnd, &ps);
+        ReleaseDC(0, hdc);
         break;
     }
     return (INT_PTR)FALSE;

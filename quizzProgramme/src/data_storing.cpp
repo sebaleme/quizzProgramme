@@ -171,13 +171,3 @@ void CCurrentSession::store()
     }
     fout.close();
 };
-
-void CCurrentSession::displayScores()
-{
-    int index{1};
-    for(const auto& rec : m_records)
-    {
-        cout << to_string(index) << " " << rec.name << " " << rec.result << "pts" << endl;
-        if(index++ > 10) break;
-    }
-}
