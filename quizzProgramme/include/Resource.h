@@ -12,30 +12,33 @@
 #define IDD_QUIZZPROGRAMME_DIALOG	102
 #define IDD_ABOUTBOX				103
 #define IDD_RULESBOX				104
+#define IDD_HINTS                   105
 // Message ID
-#define IDM_ABOUT					105
-#define IDM_RULES					106
-#define IDM_EXIT					107
-#define IDM_QUIZZTYPE_NARUTO		108
-#define IDM_QUIZZTYPE_GOT			109
-#define IDM_MODE_TRAINING			110
-#define IDM_MODE_EXAM				111
+#define IDM_ABOUT					106
+#define IDM_RULES					107
+#define IDM_HINTS                   108
+#define IDM_EXIT					109
+#define IDM_QUIZZTYPE_NARUTO		110
+#define IDM_QUIZZTYPE_GOT			111
+#define IDM_MODE_TRAINING			112
+#define IDM_MODE_EXAM				113
 // Icon ID
-#define IDI_QUIZZPROGRAMME			112
-#define IDI_SMALL					113
+#define IDI_QUIZZPROGRAMME			114
+#define IDI_SMALL					115
 // Control ID
-#define IDC_QUIZZPROGRAMME			114
-#define IDC_MAIN_EDIT				115
-#define IDC_STOP_BUTTON             116
-#define IDC_MAIN_BUTTON             117
-#define IDC_ANSWER_EDIT             118
-#define IDC_ANSWER_BUTTON           119
+#define IDC_QUIZZPROGRAMME			116
+#define IDC_MAIN_EDIT				117
+#define IDC_STOP_BUTTON             118
+#define IDC_MAIN_BUTTON             119
+#define IDC_ANSWER_EDIT             120
+#define IDC_ANSWER_BUTTON           121
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 // Bitmap ID
-#define IDB_IBIKI					120
-#define IDB_CHARACTER				121
+#define IDB_IBIKI					122
+#define IDB_CHARACTER				123
+#define IDB_WORLD_MAP 				124
 #endif
 // Next default values for new objects
 //

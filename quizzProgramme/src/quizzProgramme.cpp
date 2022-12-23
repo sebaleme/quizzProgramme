@@ -13,8 +13,7 @@
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-HBITMAP ibiki = NULL;
-HBITMAP shadowImage = NULL;
+HBITMAP ibiki = NULL, shadowImage = NULL, worldMapImage = NULL;
 
 HDC hdcMem;
 themes s_selection;
@@ -32,6 +31,7 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    Hints(HWND, UINT, WPARAM, LPARAM);
 
 void init(HMENU& f_hmenu, themes f_theme)
 {
@@ -232,6 +232,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case IDM_RULES:
                     DialogBox(hInst, MAKEINTRESOURCE(IDD_RULESBOX), hWnd, Rules);
                     break;
+                case IDM_HINTS:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_HINTS), hWnd, Hints);
+                    break;
                 case IDM_QUIZZTYPE_NARUTO:
                     stop(hWnd);
                     // Read input data
@@ -300,6 +303,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
             if (ibiki == NULL)
                 MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+            // Initialize "Hints" menu
+            worldMapImage = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_WORLD_MAP));
+            if (worldMapImage == NULL)
+                MessageBox(hWnd, L"Could not load IDB_WORLD_MAP!", L"Error", MB_OK | MB_ICONEXCLAMATION);
             // Initialize "Mode" menu
             menuItemTraining.cbSize = sizeof(MENUITEMINFO);
             menuItemTraining.fMask = MIIM_STATE;
@@ -511,6 +518,44 @@ INT_PTR CALLBACK Rules(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, ibiki));
 
         GetObject(ibiki, sizeof(bm), &bm);
+
+        BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+        SelectObject(hdcMem, hbmOld);
+        DeleteDC(hdcMem);
+
+        EndPaint(hWnd, &ps);
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
+
+// Message handler for about box.
+INT_PTR CALLBACK Hints(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hWnd, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    case WM_PAINT:
+        BITMAP bm;
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        HDC hdcMem = CreateCompatibleDC(hdc);
+        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, worldMapImage));
+
+        GetObject(worldMapImage, sizeof(bm), &bm);
 
         BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
 
