@@ -24,7 +24,7 @@ string test_mode_question(CCurrentSession* f_currentSession, HWND hWnd)
 
     // Interaction with user
     string question{ "from which village is " };
-    question.append(s_people_with_gt[f_currentSession->m_indexPeople].first);
+    question.append(std::get<0>(s_people_with_gt[f_currentSession->m_indexPeople]));
     question.append(" ?");
     return question;
 }
@@ -41,7 +41,7 @@ string test_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer, bo
     houseIt = find(s_house.begin(), s_house.end(), answerGT);
     if (houseIt != s_house.end())
     {
-        if (*houseIt == s_house[s_people_with_gt[f_currentSession->m_indexPeople].second])
+        if (*houseIt == s_house[std::get<1>(s_people_with_gt[f_currentSession->m_indexPeople])])
         {
             evaluation.append("nice one");
             f_currentSession->incr_score();
@@ -78,7 +78,7 @@ void test_mode(CCurrentSession f_currentSession)
 
         // Interaction with user
         cout << "from which " << cout_1[static_cast<int>(f_currentSession.getTheme())] << " is "
-            << s_people_with_gt[indexPeople].first << "?" << endl;
+            << std::get<0>(s_people_with_gt[indexPeople]) << "?" << endl;
         cin >> answer;
 
         // Process user response
@@ -86,7 +86,7 @@ void test_mode(CCurrentSession f_currentSession)
         houseIt = find(s_house.begin(), s_house.end(), answer);
         if (houseIt != s_house.end())
         {
-            if (*houseIt == s_house[s_people_with_gt[indexPeople].second])
+            if (*houseIt == s_house[std::get<1>(s_people_with_gt[indexPeople])])
             {
                 cout << "nice one" << endl;
                 f_currentSession.incr_score();

@@ -279,6 +279,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }
                     else
                     {
+                        if (s_people_with_gt.size()<1)
+                        {
+                            init(hmenu, s_pCurrentSession->getTheme());
+                        }
                         InvalidateRect(hWnd, NULL, TRUE);
                     }
                     break;
@@ -396,7 +400,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
-                    RECT rc2;
+                    RECT rc2; // initialized through FillRect() call
                     TCHAR startQuizz[] = _T("Starting Quizz!");
                     TextOut(hdc, 5, 100, startQuizz, _tcslen(startQuizz));
 
@@ -423,7 +427,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
 
                         // Print picture
-                        std::filesystem::path cwd = std::filesystem::current_path() / "pictures\\unknownman.bmp";
+                        string path = std::get<2>(s_people_with_gt[s_pCurrentSession->m_indexPeople]) == "man" ?
+                                                    "pictures\\mysteryman.bmp" : "pictures\\mysterywoman.bmp";
+                        std::filesystem::path cwd = std::filesystem::current_path() / path;
                         shadowImage = (HBITMAP)LoadImage(NULL, cwd.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                         if (shadowImage == NULL)
                             MessageBox(hWnd, L"Could not load shadowImage!", L"Error", MB_OK | MB_ICONEXCLAMATION);

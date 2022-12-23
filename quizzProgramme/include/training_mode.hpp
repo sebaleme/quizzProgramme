@@ -24,7 +24,7 @@ string training_mode_question(CCurrentSession* f_currentSession, HWND hWnd)
     string question{ "from which " };
     question.append(cout_1[static_cast<int>(f_currentSession->getTheme())]);
     question.append(" is ");
-    question.append(s_people_with_gt[f_currentSession->m_indexPeople].first);
+    question.append(std::get<0>(s_people_with_gt[f_currentSession->m_indexPeople]));
     question.append(" ?");
     return question;
 }
@@ -41,7 +41,7 @@ string training_mode_evaluate(CCurrentSession* f_currentSession, TCHAR* f_answer
     houseIt = find(s_house.begin(), s_house.end(), answerGT);
     if (houseIt != s_house.end())
     {
-        if (*houseIt == s_house[s_people_with_gt[f_currentSession->m_indexPeople].second])
+        if (*houseIt == s_house[std::get<1>(s_people_with_gt[f_currentSession->m_indexPeople])])
         {
             evaluation.append("nice one");
             f_currentSession->incr_score();
