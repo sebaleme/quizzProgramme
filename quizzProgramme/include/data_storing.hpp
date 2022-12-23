@@ -16,16 +16,21 @@
 #include <vector>
 #include <time.h>
 #include <chrono>
+#include <filesystem>
 #include "..\\include\\quizz_interfaces.hpp"
 
 using namespace std;
 
 struct record
 {
-    string name;
+    record(): result(0), questionNumber(0),time(0)
+    {
+        name ="" ; 
+    };
     int result;
     int questionNumber;
     int time;
+    string name;
 };
 
 enum class EGameState
@@ -63,6 +68,7 @@ public:
     // Dont want 3 methods to set/reset and read
     EGameState m_gameStarted;
     int m_indexPeople;
+    bool m_isScoreAvailable;
 private:
     std::chrono::system_clock::time_point m_start;
     quizz_mode m_mode;

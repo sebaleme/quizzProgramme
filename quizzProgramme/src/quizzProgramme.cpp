@@ -32,6 +32,7 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Hints(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    BestScores(HWND, UINT, WPARAM, LPARAM);
 
 void init(HMENU& f_hmenu, themes f_theme)
 {
@@ -279,6 +280,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     {
                         // for the test, limit the question number
                         stop(hWnd);
+                        // Update records
+                        s_pCurrentSession->updateRecords();
+                        s_pCurrentSession->store();
+                        s_pCurrentSession->m_isScoreAvailable = true;
+                        //activate best score window
+                        HWND hDlg = (HWND)wParam;
+                        HWND hBtnWnd = GetDlgItem(hDlg, IDM_BEST_SCORES);
+                        if (hBtnWnd != NULL)
+                            EnableWindow(hBtnWnd, TRUE);
                     }
                     else
                     {
@@ -413,16 +423,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                     // Print evaluation
                     // No evaluation before the first question has been asked
-                    if ((s_pCurrentSession->get_questionNumber() > 0) && (s_pCurrentSession->getMode() == quizz_mode::TRAINING))
+                    if (s_pCurrentSession->get_questionNumber() > 0)
                     {
                         TCHAR answer[30];
-                        string evaluation;
-                        bool correctness{false};
                         GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
-                        evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer, correctness);
-                        correctness ? SetTextColor(hdc, RGB(0, 255, 0)) : SetTextColor(hdc, RGB(255, 0, 0));
-                        SetBkColor(hdc, 0xc000000);
-                        TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
+
+                        if (s_pCurrentSession->getMode() == quizz_mode::TRAINING)
+                        {
+                            string evaluation;
+                            bool correctness{ false };
+                            evaluation = training_mode_evaluate(s_pCurrentSession.get(), answer, correctness);
+                            correctness ? SetTextColor(hdc, RGB(0, 255, 0)) : SetTextColor(hdc, RGB(255, 0, 0));
+                            SetBkColor(hdc, 0xc000000);
+                            TextOutA(hdc, 25, 140, evaluation.c_str(), _tcslen(charToWChar(evaluation.c_str())));
+                        }
+                        else //quizz_mode::TEST
+                        {
+                            test_mode_evaluate(s_pCurrentSession.get(), answer);
+                        }
                     }
 
                     if (s_pCurrentSession->getMode() == quizz_mode::TRAINING)
@@ -492,7 +510,7 @@ INT_PTR CALLBACK About(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return (INT_PTR)FALSE;
 }
 
-// Message handler for about box.
+// Message handler for Rules box.
 INT_PTR CALLBACK Rules(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -530,8 +548,46 @@ INT_PTR CALLBACK Rules(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return (INT_PTR)FALSE;
 }
 
-// Message handler for about box.
+// Message handler for hints box.
 INT_PTR CALLBACK Hints(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hWnd, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    case WM_PAINT:
+        BITMAP bm;
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        HDC hdcMem = CreateCompatibleDC(hdc);
+        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, worldMapImage));
+
+        GetObject(worldMapImage, sizeof(bm), &bm);
+
+        BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+        SelectObject(hdcMem, hbmOld);
+        DeleteDC(hdcMem);
+
+        EndPaint(hWnd, &ps);
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
+
+// Message handler for best scores box.
+INT_PTR CALLBACK BestScores(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)

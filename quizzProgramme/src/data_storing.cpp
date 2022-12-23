@@ -11,16 +11,14 @@
 #include <vector>
 #include "../include/data_storing.hpp"
 
-//string OUTPUT_PATH_GOT_1 = "..\\database\\got_best_scores.csv";
-//string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_best_scores.csv";
-string OUTPUT_PATH_GOT_1 = "..\\database\\got_name_house.csv";
-string OUTPUT_PATH_NARUTO_1 = "..\\database\\naruto_name_village.csv";
+string OUTPUT_PATH_GOT_1 = "database\\got_best_scores.csv";
+string OUTPUT_PATH_NARUTO_1 = "database\\naruto_best_scores.csv";
 map<themes,string> data_out_selection{
     {themes::GoT,OUTPUT_PATH_GOT_1},
     {themes::Naruto,OUTPUT_PATH_NARUTO_1},
 };
 
-CCurrentSession::CCurrentSession() : m_indexPeople{ 0 }, m_mode{quizz_mode::TRAINING}, m_theme{ themes::Naruto }
+CCurrentSession::CCurrentSession() : m_indexPeople{ 0 }, m_mode{quizz_mode::TRAINING}, m_theme{ themes::Naruto }, m_isScoreAvailable{0}
 {
     while(m_record.name.length() == 0)
     {
@@ -76,7 +74,8 @@ void CCurrentSession::resetQuestionNumber()
 
 void CCurrentSession::getHistory()
 {
-    ifstream fin(data_out_selection[m_theme].c_str());
+    std::filesystem::path outputFilePath = std::filesystem::current_path() / data_out_selection[m_theme];
+    ifstream fin(outputFilePath.c_str());
 
     if(!fin.good())
     {
@@ -161,7 +160,8 @@ void CCurrentSession::updateRecords()
 void CCurrentSession::store()
 {
     ofstream fout;
-    fout.open((data_out_selection[m_theme].c_str()));
+    std::filesystem::path outputFilePath = std::filesystem::current_path() / data_out_selection[m_theme];
+    fout.open(outputFilePath.c_str());
     for(auto& rec : m_records)
     {
         fout << to_string(rec.result) << "," << to_string(rec.time) << "," << rec.name << endl;
