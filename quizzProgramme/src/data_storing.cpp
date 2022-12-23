@@ -22,8 +22,6 @@ CCurrentSession::CCurrentSession() : m_indexPeople{ 0 }, m_mode{quizz_mode::TRAI
 {
     while(m_record.name.length() == 0)
     {
- //       cout << "Please provide your name" << endl;
-       // cin >> m_record.name;
         m_record.name = "user";
     }
     m_record.result = 0;
@@ -124,6 +122,11 @@ void CCurrentSession::getHistory()
 themes CCurrentSession::getTheme()
 {
     return m_theme;
+}
+
+void CCurrentSession::setName(string f_name)
+{
+    m_record.name = f_name;
 }
 
 void CCurrentSession::setStart()

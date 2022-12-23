@@ -257,11 +257,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     stop(hWnd);
                     break;
                 case IDC_MAIN_BUTTON:
+                {
                     s_pCurrentSession->m_gameStarted = EGameState::started;
                     if (s_pCurrentSession->getMode() == quizz_mode::TEST)
                     {
                         s_pCurrentSession->setStart();
                     }
+                    // Get user name
+                    TCHAR name[30];
+                    GetDlgItemText(hWnd, IDC_MAIN_EDIT, name, 20);
+                    wstring wstringName(&name[0]); //convert to wstring
+                    string stringName(wstringName.begin(), wstringName.end()); //and convert to string.
+                    s_pCurrentSession->setName(stringName);
+                    // Update display
                     UpdateWindow(hWnd);
                     ShowWindow(hEditTextBox, SW_HIDE);
                     ShowWindow(hEditButtonBox, SW_HIDE);
@@ -271,6 +279,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ShowWindow(hWndPictureBox, SW_SHOW);
                     InvalidateRect(hWnd, NULL, TRUE);
                     break;
+                }
                 case IDC_STOP_BUTTON:
                     stop(hWnd);
                     break;

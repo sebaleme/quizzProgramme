@@ -63,6 +63,7 @@ public:
     themes getTheme();
     void setMode(quizz_mode f_mode);
     void setStart();
+    void setName(string f_name);
     std::chrono::system_clock::time_point getStart();
     quizz_mode getMode();
     // Dont want 3 methods to set/reset and read
