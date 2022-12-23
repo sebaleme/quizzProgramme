@@ -35,6 +35,7 @@
 #define IDC_STATIC				-1
 // Bitmap ID
 #define IDB_IBIKI					120
+#define IDB_CHARACTER				121
 #endif
 // Next default values for new objects
 //

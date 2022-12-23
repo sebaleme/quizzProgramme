@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\\include\\Resource.h"
+#include <filesystem>
 
 void setQuizzAnswerColor(HDC& f_hdc, int f_scorePercent)
 {

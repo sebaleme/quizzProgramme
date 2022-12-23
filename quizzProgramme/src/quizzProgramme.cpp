@@ -14,6 +14,8 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HBITMAP ibiki = NULL;
+HBITMAP shadowImage = NULL;
+
 HDC hdcMem;
 themes s_selection;
 std::unique_ptr<CCurrentSession> s_pCurrentSession{ nullptr };
@@ -22,6 +24,7 @@ string s_question;
 // Initialize variables for controls
 HFONT hfTextBox, hfButtonBox, hfStopButtonBox, hfAnswerTextBox, hfAnswerButtonBox;
 HWND hEditTextBox, hEditButtonBox, hEditStopButtonBox, hAnswerEditTextBox, hAnswerEditButtonBox;
+HWND hWndPictureBox;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -68,6 +71,7 @@ void stop(HWND f_hWnd)
     ShowWindow(hEditStopButtonBox, SW_HIDE);
     ShowWindow(hAnswerEditTextBox, SW_HIDE);
     ShowWindow(hAnswerEditButtonBox, SW_HIDE);
+    ShowWindow(hWndPictureBox, SW_HIDE);
     InvalidateRect(f_hWnd, NULL, TRUE);
 }
 
@@ -260,6 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ShowWindow(hEditStopButtonBox, SW_SHOW);
                     ShowWindow(hAnswerEditTextBox, SW_SHOW);
                     ShowWindow(hAnswerEditButtonBox, SW_SHOW);
+                    ShowWindow(hWndPictureBox, SW_SHOW);
                     InvalidateRect(hWnd, NULL, TRUE);
                     break;
                 case IDC_STOP_BUTTON:
@@ -344,6 +349,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             hfAnswerButtonBox = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
             SendMessage(hAnswerEditButtonBox, WM_SETFONT, (WPARAM)hfAnswerButtonBox, MAKELPARAM(FALSE, 0));
 
+            // Create the image associated with the question
+            hWndPictureBox = CreateWindowEx(0, L"STATIC", L"Picture Box",
+                WS_CHILD | WS_VISIBLE | SS_BITMAP,
+                500, 100, 100, 100, hWnd, (HMENU)IDB_CHARACTER, GetModuleHandle(NULL), NULL);
+
             ShowWindow(hEditTextBox, SW_SHOW);
             ShowWindow(hEditButtonBox, SW_SHOW);
             ShowWindow(hEditStopButtonBox, SW_HIDE);
@@ -411,6 +421,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         SetTextColor(hdc, RGB(0, 0, 0));
                         s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
                         TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
+
+                        // Print picture
+                        std::filesystem::path cwd = std::filesystem::current_path() / "pictures\\unknownman.bmp";
+                        shadowImage = (HBITMAP)LoadImage(NULL, cwd.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                        if (shadowImage == NULL)
+                            MessageBox(hWnd, L"Could not load shadowImage!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+                        SendMessage(hWndPictureBox, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)shadowImage);
 
                         // Print score
                         string Score = to_string(s_pCurrentSession->get_score());
