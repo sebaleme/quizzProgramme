@@ -46,6 +46,7 @@ public:
     void updateRecords();
     void displayScores();
     int get_score();
+    int get_scorePercent();
     void incr_score();
     void resetScore();
     int get_questionNumber();

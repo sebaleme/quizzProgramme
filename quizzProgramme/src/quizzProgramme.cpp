@@ -61,8 +61,6 @@ void stop(HWND f_hWnd)
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - s_pCurrentSession->getStart();
     s_pCurrentSession->set_duration(static_cast<int>(elapsed_seconds.count()));
-    s_pCurrentSession->resetQuestionNumber();
-    s_pCurrentSession->resetScore();
     s_pCurrentSession->m_gameStarted = EGameState::finished;
     UpdateWindow(f_hWnd);
     ShowWindow(hEditTextBox, SW_SHOW);
@@ -361,8 +359,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 // Display previous test results
                 if (s_pCurrentSession->m_gameStarted == EGameState::finished)
                 {
-                    TCHAR score[] = _T("Score:");
-                    TextOut(hdc, 5, 125, score, _tcslen(score));
+                    string score{ "Score: "};
+                    score.append(to_string(s_pCurrentSession->get_scorePercent()));
+                    score.append("%");
+                    setQuizzAnswerColor(hdc, s_pCurrentSession->get_scorePercent());
+                    TextOutA(hdc, 5, 125, score.c_str(), _tcslen(charToWChar(score.c_str())));
+                    s_pCurrentSession->resetScore();
+                    s_pCurrentSession->resetQuestionNumber();
                     s_pCurrentSession->m_gameStarted = EGameState::not_started;
                 }
 
@@ -374,6 +377,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     TCHAR selectTheme[] = _T("Please select a theme, a game type and enter your name");
                     // Here your application is laid out.
                     // in the top left corner.
+                    SetTextColor(hdc, RGB(0, 0, 0));
                     TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
                     TextOut(hdc, 5, 25, selectTheme, _tcslen(selectTheme));
 

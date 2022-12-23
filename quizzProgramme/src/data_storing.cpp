@@ -40,7 +40,13 @@ void CCurrentSession::set_duration(int f_duration)
 
 int CCurrentSession::get_score()
 {
-    return m_record.result;
+    return  m_record.result;
+};
+
+int CCurrentSession::get_scorePercent()
+{
+    int scorePercent = m_record.result * 100 / get_questionNumber();
+    return scorePercent;
 };
 
 void CCurrentSession::incr_score()
