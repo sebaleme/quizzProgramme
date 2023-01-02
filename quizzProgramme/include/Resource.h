@@ -40,7 +40,8 @@
 // Bitmap ID
 #define IDB_IBIKI					124
 #define IDB_CHARACTER				125
-#define IDB_WORLD_MAP 				126
+#define IDB_NARUTO_WORLD_MAP		126
+#define IDB_GOT_WORLD_MAP			127
 #endif
 // Next default values for new objects
 //

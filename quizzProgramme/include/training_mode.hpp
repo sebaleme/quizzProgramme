@@ -17,15 +17,25 @@ using namespace std;
 
 string training_mode_question(CCurrentSession* f_currentSession, HWND hWnd)
 {
-    f_currentSession->m_indexPeople = rand() % static_cast<int>(s_people_with_gt.size());
-    f_currentSession->incr_questionNumber();
-
-    // Interaction with user
     string question{ "from which " };
-    question.append(cout_1[static_cast<int>(f_currentSession->getTheme())]);
-    question.append(" is ");
-    question.append(std::get<0>(s_people_with_gt[f_currentSession->m_indexPeople]));
-    question.append(" ?");
+
+    if (s_people_with_gt.size() > 0)
+    {
+        f_currentSession->m_indexPeople = rand() % static_cast<int>(s_people_with_gt.size());
+            f_currentSession->incr_questionNumber();
+
+            // Interaction with user
+            question.append(cout_1[static_cast<int>(f_currentSession->getTheme())]);
+            question.append(" is ");
+            question.append(std::get<0>(s_people_with_gt[f_currentSession->m_indexPeople]));
+            question.append(" ?");
+            f_currentSession->m_isValidQuestion = true;
+    }
+    else
+    {
+        f_currentSession->m_isValidQuestion = false;
+        question = "Input data was not read properly";
+    }
     return question;
 }
 

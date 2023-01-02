@@ -13,7 +13,8 @@
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-HBITMAP ibiki = NULL, shadowImage = NULL, worldMapImage = NULL;
+HBITMAP ibiki = NULL, shadowImage = NULL;
+std::map<themes, HBITMAP> worldMapImage{ {themes::GoT,NULL},{themes::Naruto, NULL}, {themes::Invalid,NULL}};
 
 HDC hdcMem;
 themes s_selection;
@@ -34,10 +35,16 @@ INT_PTR CALLBACK    Rules(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Hints(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    BestScores(HWND, UINT, WPARAM, LPARAM);
 
-void init(HMENU& f_hmenu, themes f_theme)
+void init(HMENU& f_hmenu, HWND f_hWnd, themes f_theme)
 {
+    // Remove all previous inputs
+    s_people_with_gt.clear();
+
+    s_pCurrentSession->m_isValidQuestion = false;
     s_pCurrentSession->setTheme(f_theme);
-    init_input_data(f_theme);
+    bool loadingData{ init_input_data(f_theme) };
+    if (!loadingData)
+        MessageBox(f_hWnd, L"Could not load input file!", L"Error", MB_OK | MB_ICONEXCLAMATION);
     // Initialize "Theme" menu
     MENUITEMINFO menuItemNaruto = { 0 };
     MENUITEMINFO menuItemGot = { 0 };
@@ -45,6 +52,13 @@ void init(HMENU& f_hmenu, themes f_theme)
     menuItemNaruto.fMask = MIIM_STATE;
     menuItemGot.cbSize = sizeof(MENUITEMINFO);
     menuItemGot.fMask = MIIM_STATE;
+
+    // Initialize "Hints" menu
+    worldMapImage[themes::Naruto] = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_NARUTO_WORLD_MAP));
+    worldMapImage[themes::GoT] = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_GOT_WORLD_MAP));
+    if (worldMapImage[s_pCurrentSession->getTheme()] == NULL)
+        MessageBox(f_hWnd, L"Could not load image!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+
     if (f_theme == themes::Naruto)
     {
         menuItemGot.fState = MFS_UNCHECKED;
@@ -242,12 +256,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case IDM_QUIZZTYPE_NARUTO:
                     stop(hWnd);
                     // Read input data
-                    init(hmenu, themes::Naruto);
+                    init(hmenu, hWnd, themes::Naruto);
                     break;
                 case IDM_QUIZZTYPE_GOT:
                     stop(hWnd);
                     // Read input data
-                    init(hmenu, themes::GoT);
+                    init(hmenu, hWnd, themes::GoT);
                     break;
                 case IDM_MODE_TRAINING:
                     s_pCurrentSession->setMode(quizz_mode::TRAINING);
@@ -306,7 +320,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     {
                         if (s_people_with_gt.size()<1)
                         {
-                            init(hmenu, s_pCurrentSession->getTheme());
+                            init(hmenu, hWnd, s_pCurrentSession->getTheme());
                         }
                         InvalidateRect(hWnd, NULL, TRUE);
                     }
@@ -325,17 +339,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             ibiki = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_IBIKI));
             if (ibiki == NULL)
                 MessageBox(hWnd, L"Could not load IDB_IBIKI!", L"Error", MB_OK | MB_ICONEXCLAMATION);
-            // Initialize "Hints" menu
-            worldMapImage = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_WORLD_MAP));
-            if (worldMapImage == NULL)
-                MessageBox(hWnd, L"Could not load IDB_WORLD_MAP!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+
             // Initialize "Mode" menu
             menuItemTraining.cbSize = sizeof(MENUITEMINFO);
             menuItemTraining.fMask = MIIM_STATE;
             menuItemTraining.fState = MFS_CHECKED;
             SetMenuItemInfo(hmenu, IDM_MODE_TRAINING, FALSE, &menuItemTraining);
             // Initialize "Theme" menu
-            init(hmenu, themes::Naruto);
+            init(hmenu, hWnd, themes::Naruto);
 
             // Create username input text box
             hEditTextBox = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"User",
@@ -435,7 +446,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                     // Print evaluation
                     // No evaluation before the first question has been asked
-                    if (s_pCurrentSession->get_questionNumber() > 0)
+                    if (s_pCurrentSession->m_isValidQuestion)
                     {
                         TCHAR answer[30];
                         GetDlgItemText(hWnd, IDC_ANSWER_EDIT, answer, 20);
@@ -460,18 +471,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         // Print question
                         SetBkColor(hdc, RGB(255, 255, 255));
                         SetTextColor(hdc, RGB(0, 0, 0));
+
                         s_question = training_mode_question(s_pCurrentSession.get(), hWnd);
                         TextOutA(hdc, 25, 120, s_question.c_str(), _tcslen(charToWChar(s_question.c_str())));
 
                         // Print picture
-                        string path = std::get<2>(s_people_with_gt[s_pCurrentSession->m_indexPeople]) == "man" ?
-                                                    "pictures\\mysteryman.bmp" : "pictures\\mysterywoman.bmp";
-                        std::filesystem::path cwd = std::filesystem::current_path() / path;
-                        shadowImage = (HBITMAP)LoadImage(NULL, cwd.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                        if (shadowImage == NULL)
-                            MessageBox(hWnd, L"Could not load shadowImage!", L"Error", MB_OK | MB_ICONEXCLAMATION);
-                        SendMessage(hWndPictureBox, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)shadowImage);
-
+						if(s_people_with_gt.size()>0)
+						{
+							string path = std::get<2>(s_people_with_gt[s_pCurrentSession->m_indexPeople]) == "man" ?
+														"pictures\\mysteryman.bmp" : "pictures\\mysterywoman.bmp";
+							std::filesystem::path cwd = std::filesystem::current_path() / path;
+							shadowImage = (HBITMAP)LoadImage(NULL, cwd.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+							if (shadowImage == NULL)
+								MessageBox(hWnd, L"Could not load shadowImage!", L"Error", MB_OK | MB_ICONEXCLAMATION);
+							SendMessage(hWndPictureBox, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)shadowImage);
+						}
                         // Print score
                         string Score = to_string(s_pCurrentSession->get_score());
                         Score.append("/");
@@ -583,9 +597,9 @@ INT_PTR CALLBACK Hints(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         HDC hdc = BeginPaint(hWnd, &ps);
 
         HDC hdcMem = CreateCompatibleDC(hdc);
-        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, worldMapImage));
+        HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(hdcMem, worldMapImage[s_pCurrentSession->getTheme()]));
 
-        GetObject(worldMapImage, sizeof(bm), &bm);
+        GetObject(worldMapImage[s_pCurrentSession->getTheme()], sizeof(bm), &bm);
 
         BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
 

@@ -105,7 +105,6 @@ ostream& operator<<(ostream& f_out, const themes f_input)
 // interface to access data
 string INPUT_PATH_GOT_1 = "database\\got_name_house.csv";
 string INPUT_PATH_NARUTO_1 = "database\\naruto_name_village.csv";
-//string INPUT_PATH_NARUTO_1 = "C:\\Users\\lsm1so\\source\\repos\\quizzProgramme\\quizzProgramme\\database\\naruto_name_village.csv";
 map<themes, string> data_in_selection{
     {themes::GoT,INPUT_PATH_GOT_1},
     {themes::Naruto,INPUT_PATH_NARUTO_1},
@@ -133,14 +132,16 @@ void print_GT()
 
 /// @brief read CSV and store data into vectors
 ///        2 interfaces are provided, a vector of houses and a vector of pair containing the names and responses 
-void init_input_data(themes f_selection)
+bool init_input_data(themes f_selection)
 {
+    bool result{ true };
     std::filesystem::path inputFilePath = std::filesystem::current_path() / data_in_selection[f_selection];
     ifstream fin(inputFilePath.c_str());
 
     if (!fin.good())
     {
         cout << "Could not open the input file" << endl;
+        result = false;
     }
 
     // get first line
@@ -175,6 +176,8 @@ void init_input_data(themes f_selection)
         // Update the people list
         s_people_with_gt.push_back(std::make_tuple(name, houseIndex, sex));
     }
+
+    return result;
 }
 
 #endif // DATA_ACQUISITION_HEADER_HPP

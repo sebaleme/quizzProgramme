@@ -69,6 +69,7 @@ public:
     EGameState m_gameStarted;
     int m_indexPeople;
     bool m_isScoreAvailable;
+    bool m_isValidQuestion;
     vector<record> m_records;
 private:
     std::chrono::system_clock::time_point m_start;
