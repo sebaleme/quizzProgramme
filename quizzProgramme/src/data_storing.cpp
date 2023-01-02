@@ -41,7 +41,8 @@ int CCurrentSession::get_score()
 
 int CCurrentSession::get_scorePercent()
 {
-    int scorePercent = m_record.result * 100 / get_questionNumber();
+    int questionNumber{get_questionNumber() };
+    int scorePercent = (questionNumber == 0) ? 0 : m_record.result * 100 / questionNumber;
     return scorePercent;
 };
 
